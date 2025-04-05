@@ -1,0 +1,24 @@
+@startuml
+package "Client (JavaFX)" {
+  [Interface utilisateur] as UI
+  [Contrôleur client] as ClientController
+  [Client MQTT] as ClientMQTT
+}
+
+package "Broker MQTT" {
+  [Mosquitto] as Broker
+}
+
+package "Pizzeria" {
+  [Serveur MQTT] as ServerMQTT
+  [Gestionnaire de commandes] as OrderManager
+  [Pizzaïolo] as Pizzaiolo
+}
+
+UI --> ClientController
+ClientController -> ClientMQTT
+ClientMQTT <-> Broker
+Broker <-> ServerMQTT
+OrderManager <-- ServerMQTT
+OrderManager --> Pizzaiolo
+@enduml
