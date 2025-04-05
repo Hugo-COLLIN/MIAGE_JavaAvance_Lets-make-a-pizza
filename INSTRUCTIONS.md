@@ -1,7 +1,7 @@
 # Let's make pizza !
 
 <p align="center">
-<img title="Pizza" src="assets/pizza.png" width="256" height="256" />
+<img title="Pizza" src="client/assets/pizza.png" width="256" height="256" />
 </p>
 
 Vous allez devoir développer un système distribué permettant de commander
@@ -111,8 +111,8 @@ On se limitera à une seule commande à la fois par client, mais plusieurs clien
 
 Pour ceux qui sont en manque d'inspiration, vous pouvez vous inspirer des wireframes ci-dessous :
 
-![](assets/accueil.png) ![](assets/liste.png)
-![](assets/en_cours.png) ![](assets/livraison.png)
+![](docs/mockup/accueil.png) ![](docs/mockup/liste.png)
+![](docs/mockup/en_cours.png) ![](docs/mockup/livraison.png)
 
 ## Pizzeria
 
