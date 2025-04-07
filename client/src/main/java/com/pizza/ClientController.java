@@ -9,7 +9,7 @@ import javafx.scene.control.ListView;
 
 import java.util.List;
 
-public class HelloController {
+public class ClientController {
     @FXML
     private Label statusLabel;
 
