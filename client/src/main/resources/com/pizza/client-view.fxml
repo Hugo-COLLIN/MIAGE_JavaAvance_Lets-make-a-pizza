@@ -7,7 +7,7 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.pizza.ClientController"
-            prefHeight="500" prefWidth="500">
+            prefHeight="500" prefWidth="600">
 
     <!-- En-tête -->
     <top>
@@ -22,7 +22,15 @@
 
     <!-- Centre - Liste des pizzas -->
     <center>
-        <ListView fx:id="menuListView" prefHeight="300"/>
+        <ScrollPane fitToWidth="true">
+            <VBox fx:id="orderPane" spacing="10" alignment="TOP_CENTER">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+                <Label text="Sélectionnez vos pizzas:" style="-fx-font-weight: bold;"/>
+                <!-- Les pizzas seront ajoutées dynamiquement ici -->
+            </VBox>
+        </ScrollPane>
     </center>
 
     <!-- Bas - Boutons -->
@@ -31,7 +39,7 @@
             <padding>
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
-            <Button fx:id="requestMenuButton" text="Voir le menu" onAction="#onRequestMenuButtonClick"/>
+            <Button fx:id="requestMenuButton" text="Actualiser le menu" onAction="#onRequestMenu"/>
             <Button text="Envoyer un message" onAction="#onSendMessageButtonClick"/>
         </HBox>
     </bottom>
