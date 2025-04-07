@@ -19,9 +19,13 @@ public class ClientController {
     private Button requestMenuButton;
 
     @FXML
+    private Button orderButton;
+
+    @FXML
     private VBox orderPane;
 
     private MQTTClient mqttClient;
+    private List<Pizza> availablePizzas;
     private Map<String, Spinner<Integer>> pizzaQuantities = new HashMap<>();
 
     public void initialize() {
@@ -59,10 +63,42 @@ public class ClientController {
         mqttClient.sendMessage("HelloWorld");
     }
 
+    @FXML
+    protected void onPlaceOrderButtonClick() {
+        // Vérifier si au moins une pizza est sélectionnée
+        boolean hasSelection = false;
+        for (Spinner<Integer> spinner : pizzaQuantities.values()) {
+            if (spinner.getValue() > 0) {
+                hasSelection = true;
+                break;
+            }
+        }
+
+        if (!hasSelection) {
+            showError("Commande vide", "Veuillez sélectionner au moins une pizza.");
+            return;
+        }
+
+        // Créer la commande
+        Order order = new Order();
+        for (Map.Entry<String, Spinner<Integer>> entry : pizzaQuantities.entrySet()) {
+            int quantity = entry.getValue().getValue();
+            if (quantity > 0) {
+                order.addPizza(entry.getKey(), quantity);
+            }
+        }
+
+        // Envoyer la commande
+        System.out.println("Commande envoyée: " + order.serialize());
+        // TODO
+    }
+
     private void updateMenuUI(List<Pizza> menu) {
         Platform.runLater(() -> {
+            this.availablePizzas = menu;
             statusLabel.setText("Menu récupéré avec succès - " + menu.size() + " pizzas disponibles");
             requestMenuButton.setDisable(false);
+            orderButton.setDisable(false);
 
             // Mettre à jour le panneau de commande
             updateOrderPane(menu);
