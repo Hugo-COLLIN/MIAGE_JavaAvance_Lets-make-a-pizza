@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.pizza.HelloController"
+            prefHeight="500" prefWidth="500">
+
+    <!-- En-tête -->
+    <top>
+        <VBox alignment="CENTER" spacing="10">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <Label text="Bienvenue à la Pizzeria!" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+            <Label fx:id="statusLabel" text="Prêt à commander"/>
+        </VBox>
+    </top>
+
+    <!-- Centre - Liste des pizzas -->
+    <center>
+        <ListView fx:id="menuListView" prefHeight="300"/>
+    </center>
+
+    <!-- Bas - Boutons -->
+    <bottom>
+        <HBox alignment="CENTER" spacing="20">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <Button fx:id="requestMenuButton" text="Voir le menu" onAction="#onRequestMenuButtonClick"/>
+            <Button text="Envoyer un message" onAction="#onSendMessageButtonClick"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
