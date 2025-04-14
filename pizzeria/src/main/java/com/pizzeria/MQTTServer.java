@@ -92,8 +92,9 @@ public class MQTTServer {
     }
 
     //Work in Progress
-    private void handleCommande(String topic, MqttMessage message) {
-        String payload = new String(message.getPayload());
-        System.out.println("Message reçu: " + payload);
+    private void handleCommande(String topic, MqttMessage commande) {
+        String payload = new String(commande.getPayload());
+        System.out.println("Commande reçue: " + payload);
+        Order order = Order.deserialize("1",payload);
     }
 }
