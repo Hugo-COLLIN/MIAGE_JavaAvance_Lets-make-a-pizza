@@ -1,15 +1,18 @@
 package com.pizza;
 
-import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.geometry.Pos;
-import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javafx.application.Platform;
+import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 public class ClientController {
     @FXML
@@ -89,8 +92,8 @@ public class ClientController {
         }
 
         // Envoyer la commande
-        System.out.println("Commande envoyée: " + order.serialize());
-        // TODO
+        // WorkInProgress
+        mqttClient.sendOrder(order);
     }
 
     private void updateMenuUI(List<Pizza> menu) {

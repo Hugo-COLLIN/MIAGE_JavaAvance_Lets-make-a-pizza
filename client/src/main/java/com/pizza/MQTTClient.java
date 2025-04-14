@@ -1,12 +1,15 @@
 package com.pizza;
 
-import org.eclipse.paho.client.mqttv3.*;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 public class MQTTClient {
     private final String broker = "tcp://localhost:1883";
@@ -48,7 +51,6 @@ public class MQTTClient {
             if (client == null || !client.isConnected()) {
                 connect();
             }
-
             menuFuture = new CompletableFuture<>();
 
             // Envoyer la demande de menu
@@ -56,7 +58,6 @@ public class MQTTClient {
             mqttMessage.setQos(1);
             client.publish("bcast/i_am_ungry", mqttMessage);
             System.out.println("Demande de menu envoyée");
-
             return menuFuture;
         } catch (MqttException e) {
             System.err.println("Erreur lors de la demande de menu: " + e.getMessage());
@@ -109,6 +110,23 @@ public class MQTTClient {
             }
         } catch (MqttException e) {
             System.err.println("Erreur lors de la déconnexion: " + e.getMessage());
+        }
+    }
+
+    //Work In Progress
+    //fonction pour envoyer une commande vers la pizzeria
+    public void sendOrder(Order order) {
+        try {
+            if (client == null || !client.isConnected()) {
+                connect();
+            }
+
+            MqttMessage mqttMessage = new MqttMessage(order.serialize().getBytes());
+            mqttMessage.setQos(1);
+            client.publish("pizza/commande", mqttMessage);
+            System.out.println("Commande envoyé: " + order.serialize());
+        } catch (MqttException e) {
+            System.err.println("Erreur lors de l'envoi de la commande: " + e.getMessage());
         }
     }
 }
