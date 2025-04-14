@@ -3,6 +3,8 @@ package com.pizzeria;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import lets_make_a_pizza.serveur.Pizzaiolo;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,10 +14,12 @@ public class MQTTServer {
     private final String clientId = "PizzeriaServer";
     private MqttClient client;
     private List<Pizza> catalogue;
+    private Pizzaiolo pizzaiolo;
 
     public MQTTServer() {
         // Initialisation du catalogue de pizzas
         initCatalogue();
+        pizzaiolo = new Pizzaiolo(true);
     }
 
     private void initCatalogue() {
