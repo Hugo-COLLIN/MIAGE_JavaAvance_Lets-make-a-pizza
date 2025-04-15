@@ -1,11 +1,14 @@
 package com.pizzeria;
 
-import org.eclipse.paho.client.mqttv3.*;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 public class MQTTServer {
     private final String broker = "tcp://localhost:1883";
@@ -40,6 +43,7 @@ public class MQTTServer {
             // Abonnement aux topics
             client.subscribe("pizza/messages", this::handleMessage);
             client.subscribe("bcast/i_am_ungry", this::handleMenuRequest);
+            client.subscribe("pizza/commande", this::handleCommande);
 
             System.out.println("Serveur Pizzeria en attente de messages...");
         } catch (MqttException e) {
@@ -85,5 +89,17 @@ public class MQTTServer {
         } catch (MqttException e) {
             System.err.println("Erreur lors de la déconnexion: " + e.getMessage());
         }
+    }
+
+    //TODO
+    private void handleCommande(String topic, MqttMessage commande) {
+        String payload = new String(commande.getPayload());
+        System.out.println("Commande reçue: " + payload);
+        Order order = Order.deserialize("1",payload);
+        order.getPizzaQuantities().forEach((pizza,quantite) -> {
+            for(int i = 0; i < quantite; i++){
+                System.out.println("pizza : "+pizza);
+            }
+        }); 
     }
 }
