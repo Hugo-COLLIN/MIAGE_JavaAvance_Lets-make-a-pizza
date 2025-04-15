@@ -22,12 +22,14 @@ cd broker && docker-compose up -d && cd ..
 
 2. Démarrer la pizzeria
 ```bash
-cd pizzeria && mvn clean package && java -jar target/pizza-mqtt-1.0-SNAPSHOT.jar
+cd pizzeria
+mvn clean package && java -jar target/pizza-mqtt-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
 3. Démarrer le client
 ```bash
-cd client && mvn clean javafx:run
+cd client
+mvn clean javafx:run
 ```
 
 - Au clic sur le bouton "Afficher le menu" dans l'IHM client, le client envoie une requête à la pizzeria pour afficher le menu. La pizzeria doit répondre avec le menu, qui s'affiche dans l'IHM.
