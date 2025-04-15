@@ -113,7 +113,6 @@ public class MQTTClient {
         }
     }
 
-    //Work In Progress
     //fonction pour envoyer une commande vers la pizzeria
     public void sendOrder(Order order) {
         try {

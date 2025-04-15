@@ -92,7 +92,6 @@ public class ClientController {
         }
 
         // Envoyer la commande
-        // WorkInProgress
         mqttClient.sendOrder(order);
     }
 

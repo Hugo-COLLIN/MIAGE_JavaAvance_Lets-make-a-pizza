@@ -91,10 +91,15 @@ public class MQTTServer {
         }
     }
 
-    //Work in Progress
+    //TODO
     private void handleCommande(String topic, MqttMessage commande) {
         String payload = new String(commande.getPayload());
         System.out.println("Commande reçue: " + payload);
         Order order = Order.deserialize("1",payload);
+        order.getPizzaQuantities().forEach((pizza,quantite) -> {
+            for(int i = 0; i < quantite; i++){
+                System.out.println("pizza : "+pizza);
+            }
+        }); 
     }
 }
