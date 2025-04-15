@@ -8,6 +8,7 @@ import lets_make_a_pizza.serveur.Pizzaiolo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MQTTServer {
     private final String broker = "tcp://localhost:1883";
@@ -18,16 +19,18 @@ public class MQTTServer {
 
     public MQTTServer() {
         // Initialisation du catalogue de pizzas
-        initCatalogue();
         pizzaiolo = new Pizzaiolo(true);
+        initCatalogue();
     }
 
     private void initCatalogue() {
         catalogue = new ArrayList<>();
-        catalogue.add(new Pizza("Margharita", Arrays.asList("Tomate", "Mozzarella", "Basilic"), 800));
-        catalogue.add(new Pizza("Reine", Arrays.asList("Tomate", "Mozzarella", "Jambon", "Champignons"), 1000));
-        catalogue.add(new Pizza("4 Fromages", Arrays.asList("Tomate", "Mozzarella", "Gorgonzola", "Parmesan", "Chèvre"), 1200));
-        catalogue.add(new Pizza("Végétarienne", Arrays.asList("Tomate", "Mozzarella", "Poivrons", "Oignons", "Olives"), 1100));
+        for (Pizzaiolo.DetailsPizza detailsPizza : pizzaiolo.getListePizzas()) {
+            catalogue.add(new Pizza(
+                    detailsPizza.nom(),
+                    detailsPizza.ingredients().stream().map(Pizzaiolo.Ingredient::toString).toList(),
+                    detailsPizza.prix()));
+        }
     }
 
     public void start() {

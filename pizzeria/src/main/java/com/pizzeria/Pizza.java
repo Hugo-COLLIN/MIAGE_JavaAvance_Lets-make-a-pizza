@@ -56,4 +56,9 @@ public class Pizza {
 
         return new Pizza(nom, ingredients, prix);
     }
+
+    @Override
+    public String toString() {
+        return "Pizza " + nom + ", ingrédients : " + ingredients + ", prix=" + prix + '}';
+    }
 }
