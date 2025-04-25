@@ -124,7 +124,7 @@ public class ClientController {
             Label nameLabel = new Label(pizza.getNom());
             nameLabel.setPrefWidth(150);
 
-            Label priceLabel = new Label(String.format("%.2f €", pizza.getPrix() / 100.0));
+            Label priceLabel = new Label(String.format("%d.00 €", pizza.getPrix()));
             priceLabel.setPrefWidth(80);
 
             Spinner<Integer> quantitySpinner = new Spinner<>(0, 9, 0);
