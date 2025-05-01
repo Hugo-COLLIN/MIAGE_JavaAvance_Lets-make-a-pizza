@@ -1,20 +1,15 @@
 package com.pizzeria;
 
-import org.eclipse.paho.client.mqttv3.*;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-
-import lets_make_a_pizza.serveur.Pizzaiolo;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+
+import lets_make_a_pizza.serveur.Pizzaiolo;
 
 public class MQTTServer {
     private final String broker = "tcp://localhost:1883";
@@ -106,9 +101,13 @@ public class MQTTServer {
         String payload = new String(commande.getPayload());
         System.out.println("Commande reçue: " + payload);
         Order order = Order.deserialize("1",payload);
-        order.getPizzaQuantities().forEach((pizza,quantite) -> {
+        order.getPizzaQuantities().forEach((pizzadata,quantite) -> {
             for(int i = 0; i < quantite; i++){
-                System.out.println("pizza : "+pizza);
+                System.out.println("Gestion de la pizza : "+pizzadata);
+                Pizza pizza = Pizza.deserialize(pizzadata);
+                //Pizzaiolo.DetailsPizza detail = new DetailsPizza("test", null , pizza.getPrix());
+                
+
             }
         }); 
     }

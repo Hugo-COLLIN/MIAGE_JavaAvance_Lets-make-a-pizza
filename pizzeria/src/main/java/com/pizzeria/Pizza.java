@@ -1,16 +1,19 @@
 package com.pizzeria;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import lets_make_a_pizza.serveur.Pizzaiolo.Ingredient;
+
 public class Pizza {
     private String nom;
-    private List<String> ingredients;
+    private List<Ingredient> ingredients;
     private int prix;
 
     public Pizza(String nom, List<String> ingredients, int prix) {
         this.nom = nom;
-        this.ingredients = ingredients;
+        this.ingredients = toListIngredients(ingredients);
         this.prix = prix;
     }
 
@@ -18,7 +21,7 @@ public class Pizza {
         return nom;
     }
 
-    public List<String> getIngredients() {
+    public List<Ingredient> getIngredients() {
         return ingredients;
     }
 
@@ -61,4 +64,32 @@ public class Pizza {
     public String toString() {
         return "Pizza " + nom + ", ingrédients : " + ingredients + ", prix=" + prix + '}';
     }
+
+    //fonction pour transformer une liste de String en listIngredient
+    public List<Ingredient> toListIngredients(List<String> list){
+        List<Ingredient> ingredients = new ArrayList<Ingredient>();
+        list.forEach(ing -> {
+            ingredients.add(toIngredient(ing));
+        });
+        return ingredients;
+    }
+
+    public Ingredient toIngredient(String s){
+        switch(s){
+            case "sauce tomate" : return Ingredient.SAUCE_TOMATE;
+            case "tomates cerise" : return Ingredient.TOMATES_CERISES;
+            case "mozzarella" : return Ingredient.MOZARELLA;
+            case "basilic" : return Ingredient.BASILIC;
+            case "anchois" : return Ingredient.SAUCE_TOMATE;
+            case "olives" : return Ingredient.OLIVES;
+            case "fromage" : return Ingredient.FROMAGE;
+            case "jambon" : return Ingredient.JAMBON;
+            case "champignons" : return Ingredient.CHAMPIGNONS;
+            case "poivron" : return Ingredient.POIVRON;
+            case "artichaut" : return Ingredient.ARTICHAUT;
+            default : return Ingredient.ANANAS;
+        }
+    }
+
+    //SAUCE_TOMATE, TOMATES_CERISES, MOZARELLA, BASILIC, ANCHOIS, OLIVES, FROMAGE, JAMBON, CHAMPIGNONS, POIVRON, ARTICHAUT, ANANAS
 }
