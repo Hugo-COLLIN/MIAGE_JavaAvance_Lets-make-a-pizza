@@ -109,11 +109,21 @@ public class MQTTServer {
                     Pizza pizza = trouverDansCatalogue(pizzanom);
                     Pizzaiolo.DetailsPizza detail = new Pizzaiolo.DetailsPizza(pizza.getNom(), pizza.getIngredients() , pizza.getPrix());
                     pizzaiolo.preparer(detail);
+                    
+                    //pizzaspreparees.add()
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }   
+                
             }
+            //TODO
+            //notifier utilisateur que les pizzas de la commande sont toutes préparées
             pizzaiolo.cuire(pizzaspreparees);
+            //TODO
+            //notifier utilisateur que les pizzas de la commande sont cuites
+            //livrer les pizzas
+            //notifier le client de la livraison
+            
         }); 
     }
 
