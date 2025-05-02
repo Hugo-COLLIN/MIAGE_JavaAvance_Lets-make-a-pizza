@@ -1,20 +1,15 @@
 package com.pizzeria;
 
-import org.eclipse.paho.client.mqttv3.*;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-
-import lets_make_a_pizza.serveur.Pizzaiolo;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+
+import lets_make_a_pizza.serveur.Pizzaiolo;
 
 public class MQTTServer {
     private final String broker = "tcp://localhost:1883";
@@ -106,10 +101,36 @@ public class MQTTServer {
         String payload = new String(commande.getPayload());
         System.out.println("Commande reçue: " + payload);
         Order order = Order.deserialize("1",payload);
-        order.getPizzaQuantities().forEach((pizza,quantite) -> {
+        order.getPizzaQuantities().forEach((pizzanom,quantite) -> {
+            List<Pizzaiolo.Pizza> pizzaspreparees = new ArrayList<>();
             for(int i = 0; i < quantite; i++){
-                System.out.println("pizza : "+pizza);
+                System.out.println("Gestion de la pizza : "+pizzanom);
+                try {
+                    Pizza pizza = trouverDansCatalogue(pizzanom);
+                    Pizzaiolo.DetailsPizza detail = new Pizzaiolo.DetailsPizza(pizza.getNom(), pizza.getIngredients() , pizza.getPrix());
+                    pizzaiolo.preparer(detail);
+                    
+                    //pizzaspreparees.add()
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }   
+                
             }
+            //TODO
+            //notifier utilisateur que les pizzas de la commande sont toutes préparées
+            pizzaiolo.cuire(pizzaspreparees);
+            //TODO
+            //notifier utilisateur que les pizzas de la commande sont cuites
+            //livrer les pizzas
+            //notifier le client de la livraison
+            
         }); 
+    }
+
+    public Pizza trouverDansCatalogue(String nom) throws Exception{
+        for(int i = 0; i < catalogue.size();i++){
+            if(catalogue.get(i).serialize().split("\\|")[0].equals(nom)){return catalogue.get(i);}
+        }
+        throw new Exception("Nom de pizza introuvable dans le catalogue");
     }
 }
