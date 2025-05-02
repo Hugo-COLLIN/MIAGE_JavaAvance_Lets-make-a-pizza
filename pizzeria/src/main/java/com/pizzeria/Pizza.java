@@ -67,7 +67,7 @@ public class Pizza {
 
     //fonction pour transformer une liste de String en listIngredient
     public List<Ingredient> toListIngredients(List<String> list){
-        List<Ingredient> ingredients = new ArrayList<Ingredient>();
+        List<Ingredient> ingredients = new ArrayList<>();
         list.forEach(ing -> {
             ingredients.add(toIngredient(ing));
         });
@@ -75,10 +75,11 @@ public class Pizza {
     }
 
     public Ingredient toIngredient(String s){
+        System.out.println(s);
         switch(s){
             case "sauce tomate" : return Ingredient.SAUCE_TOMATE;
             case "tomates cerise" : return Ingredient.TOMATES_CERISES;
-            case "mozzarella" : return Ingredient.MOZARELLA;
+            case "mozarella" : return Ingredient.MOZARELLA;
             case "basilic" : return Ingredient.BASILIC;
             case "anchois" : return Ingredient.SAUCE_TOMATE;
             case "olives" : return Ingredient.OLIVES;

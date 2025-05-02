@@ -101,14 +101,26 @@ public class MQTTServer {
         String payload = new String(commande.getPayload());
         System.out.println("Commande reçue: " + payload);
         Order order = Order.deserialize("1",payload);
-        order.getPizzaQuantities().forEach((pizzadata,quantite) -> {
+        order.getPizzaQuantities().forEach((pizzanom,quantite) -> {
+            List<Pizzaiolo.Pizza> pizzaspreparees = new ArrayList<>();
             for(int i = 0; i < quantite; i++){
-                System.out.println("Gestion de la pizza : "+pizzadata);
-                Pizza pizza = Pizza.deserialize(pizzadata);
-                //Pizzaiolo.DetailsPizza detail = new DetailsPizza("test", null , pizza.getPrix());
-                
-
+                System.out.println("Gestion de la pizza : "+pizzanom);
+                try {
+                    Pizza pizza = trouverDansCatalogue(pizzanom);
+                    Pizzaiolo.DetailsPizza detail = new Pizzaiolo.DetailsPizza(pizza.getNom(), pizza.getIngredients() , pizza.getPrix());
+                    pizzaiolo.preparer(detail);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }   
             }
+            pizzaiolo.cuire(pizzaspreparees);
         }); 
+    }
+
+    public Pizza trouverDansCatalogue(String nom) throws Exception{
+        for(int i = 0; i < catalogue.size();i++){
+            if(catalogue.get(i).serialize().split("\\|")[0].equals(nom)){return catalogue.get(i);}
+        }
+        throw new Exception("Nom de pizza introuvable dans le catalogue");
     }
 }
