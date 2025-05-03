@@ -125,20 +125,32 @@ public class MQTTServer {
                     pizzaspreparees.add(pizzaPreparee);
                 }
 
-                //TODO
-                //notifier utilisateur que les pizzas de la commande sont cuites
+                // Notifier que les pizzas sont préparées
+                envoyerNotificationClient(order.getId(), "Vos pizzas " + pizzanom + " sont en cours de cuisson");
 
                 // Cuire les pizzas
                 System.out.println("Cuisson des pizzas : " + pizzanom);
                 List<Pizzaiolo.Pizza> pizzasCuites = pizzaiolo.cuire(pizzaspreparees);
 
-                //TODO
-                //notifier le client de la livraison
+                // Notification à l'utilisateur
+                envoyerNotificationClient(order.getId(), "Vos pizzas " + pizzanom + " sont prêtes !");
 
             } catch (Exception e) {
                 System.out.println("Erreur lors de la préparation : " + e.getMessage());
             }
         });
+    }
+
+    // Méthode pour envoyer une notification au client
+    private void envoyerNotificationClient(String clientId, String message) {
+        try {
+            MqttMessage notification = new MqttMessage(message.getBytes());
+            notification.setQos(1);
+            client.publish("pizza/notification/" + clientId, notification);
+            System.out.println("Notification envoyée au client " + clientId + ": " + message);
+        } catch (MqttException e) {
+            System.err.println("Erreur lors de l'envoi de la notification: " + e.getMessage());
+        }
     }
 
     public Pizza trouverDansCatalogue(String nom) throws Exception{
