@@ -100,31 +100,45 @@ public class MQTTServer {
     private void handleCommande(String topic, MqttMessage commande) {
         String payload = new String(commande.getPayload());
         System.out.println("Commande reçue: " + payload);
-        Order order = Order.deserialize("1",payload);
-        order.getPizzaQuantities().forEach((pizzanom,quantite) -> {
-            List<Pizzaiolo.Pizza> pizzaspreparees = new ArrayList<>();
-            for(int i = 0; i < quantite; i++){
-                System.out.println("Gestion de la pizza : "+pizzanom);
-                try {
-                    Pizza pizza = trouverDansCatalogue(pizzanom);
-                    Pizzaiolo.DetailsPizza detail = new Pizzaiolo.DetailsPizza(pizza.getNom(), pizza.getIngredients() , pizza.getPrix());
-                    pizzaiolo.preparer(detail);
-                    
-                    //pizzaspreparees.add()
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }   
-                
+        Order order = Order.deserialize("1", payload);
+
+        // Pour chaque type de pizza commandée
+        order.getPizzaQuantities().forEach((pizzanom, quantite) -> {
+            try {
+                // Récupérer les détails de la pizza dans le catalogue
+                Pizza pizzaInfo = trouverDansCatalogue(pizzanom);
+
+                // Créer un objet DetailsPizza pour la préparation
+                Pizzaiolo.DetailsPizza detailsPizza = new Pizzaiolo.DetailsPizza(
+                        pizzaInfo.getNom(),
+                        pizzaInfo.getIngredients(),
+                        pizzaInfo.getPrix()
+                );
+
+                // Préparer les pizzas demandées
+                List<Pizzaiolo.Pizza> pizzaspreparees = new ArrayList<>();
+                for (int i = 0; i < quantite; i++) {
+                    System.out.println("Préparation de la pizza : " + pizzanom);
+                    // Préparer la pizza - cette méthode renvoie un objet Pizzaiolo.Pizza
+                    Pizzaiolo.Pizza pizzaPreparee = pizzaiolo.preparer(detailsPizza);
+                    // Ajouter à la liste des pizzas préparées
+                    pizzaspreparees.add(pizzaPreparee);
+                }
+
+                //TODO
+                //notifier utilisateur que les pizzas de la commande sont cuites
+
+                // Cuire les pizzas
+                System.out.println("Cuisson des pizzas : " + pizzanom);
+                List<Pizzaiolo.Pizza> pizzasCuites = pizzaiolo.cuire(pizzaspreparees);
+
+                //TODO
+                //notifier le client de la livraison
+
+            } catch (Exception e) {
+                System.out.println("Erreur lors de la préparation : " + e.getMessage());
             }
-            //TODO
-            //notifier utilisateur que les pizzas de la commande sont toutes préparées
-            pizzaiolo.cuire(pizzaspreparees);
-            //TODO
-            //notifier utilisateur que les pizzas de la commande sont cuites
-            //livrer les pizzas
-            //notifier le client de la livraison
-            
-        }); 
+        });
     }
 
     public Pizza trouverDansCatalogue(String nom) throws Exception{
