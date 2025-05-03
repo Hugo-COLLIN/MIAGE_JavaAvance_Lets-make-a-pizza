@@ -102,6 +102,8 @@ public class MQTTServer {
         System.out.println("Commande reçue: " + payload);
         Order order = Order.deserialize("1", payload);
 
+        envoyerNotificationClient(order.getId(), "Votre commande est en cours de préparation", "PREPARING");
+
         // Pour chaque type de pizza commandée
         order.getPizzaQuantities().forEach((pizzanom, quantite) -> {
             try {
@@ -126,14 +128,14 @@ public class MQTTServer {
                 }
 
                 // Notifier que les pizzas sont préparées
-                envoyerNotificationClient(order.getId(), "Vos pizzas " + pizzanom + " sont en cours de cuisson");
+                envoyerNotificationClient(order.getId(), "Vos pizzas " + pizzanom + " sont en cours de cuisson", "BAKING");
 
                 // Cuire les pizzas
                 System.out.println("Cuisson des pizzas : " + pizzanom);
                 List<Pizzaiolo.Pizza> pizzasCuites = pizzaiolo.cuire(pizzaspreparees);
 
                 // Notification à l'utilisateur
-                envoyerNotificationClient(order.getId(), "Vos pizzas " + pizzanom + " sont prêtes !");
+                envoyerNotificationClient(order.getId(), "Vos pizzas " + pizzanom + " sont prêtes !", "READY");
 
             } catch (Exception e) {
                 System.out.println("Erreur lors de la préparation : " + e.getMessage());
@@ -142,12 +144,13 @@ public class MQTTServer {
     }
 
     // Méthode pour envoyer une notification au client
-    private void envoyerNotificationClient(String clientId, String message) {
+    private void envoyerNotificationClient(String orderId, String message, String status) {
         try {
+            String topic = "orders/" + orderId + "/" + status;
             MqttMessage notification = new MqttMessage(message.getBytes());
             notification.setQos(1);
-            client.publish("pizza/notification/" + clientId, notification);
-            System.out.println("Notification envoyée au client " + clientId + ": " + message);
+            client.publish(topic, notification);
+            System.out.println("Notification envoyée à " + topic + ": " + message);
         } catch (MqttException e) {
             System.err.println("Erreur lors de l'envoi de la notification: " + e.getMessage());
         }
