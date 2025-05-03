@@ -113,17 +113,22 @@ public class MQTTClient {
         }
     }
 
-    //fonction pour envoyer une commande vers la pizzeria
+    /**
+     * Fonction pour envoyer une commande vers la pizzeria
+     */
     public void sendOrder(Order order) {
         try {
             if (client == null || !client.isConnected()) {
                 connect();
             }
 
+            // TODO S'abonner aux topics de statut de cette commande
+
+            // Envoyer la commande sur le bon topic (orders/xxx)
             MqttMessage mqttMessage = new MqttMessage(order.serialize().getBytes());
             mqttMessage.setQos(1);
-            client.publish("pizza/commande", mqttMessage);
-            System.out.println("Commande envoyé: " + order.serialize());
+            client.publish("orders/" + order.getId(), mqttMessage);
+            System.out.println("Commande envoyée: " + order.serialize());
         } catch (MqttException e) {
             System.err.println("Erreur lors de l'envoi de la commande: " + e.getMessage());
         }

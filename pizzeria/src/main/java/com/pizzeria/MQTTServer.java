@@ -48,7 +48,7 @@ public class MQTTServer {
             // Abonnement aux topics
             client.subscribe("pizza/messages", this::handleMessage);
             client.subscribe("bcast/i_am_ungry", this::handleMenuRequest);
-            client.subscribe("pizza/commande", this::handleCommande);
+            client.subscribe("orders/+", this::handleCommande);
 
             System.out.println("Serveur Pizzeria en attente de messages...");
         } catch (MqttException e) {
