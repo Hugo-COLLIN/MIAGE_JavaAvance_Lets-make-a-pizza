@@ -2,6 +2,7 @@ package com.pizzeria;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -48,7 +49,7 @@ public class MQTTServer {
             // Abonnement aux topics
             client.subscribe("pizza/messages", this::handleMessage);
             client.subscribe("bcast/i_am_ungry", this::handleMenuRequest);
-            client.subscribe("pizza/commande", this::handleCommande);
+            client.subscribe("orders/+", this::handleCommande);
 
             System.out.println("Serveur Pizzeria en attente de messages...");
         } catch (MqttException e) {
@@ -96,63 +97,104 @@ public class MQTTServer {
         }
     }
 
-    //TODO
     private void handleCommande(String topic, MqttMessage commande) {
+        // Extraire l'ID de la commande du topic (orders/xxx)
+        String orderId = topic.substring(topic.lastIndexOf('/') + 1);
         String payload = new String(commande.getPayload());
-        System.out.println("Commande reçue: " + payload);
-        Order order = Order.deserialize("1", payload);
+        System.out.println("Commande reçue [" + orderId + "]: " + payload);
 
-        envoyerNotificationClient(order.getId(), "Votre commande est en cours de préparation", "PREPARING");
+        // Désérialiser la commande
+        Order order = Order.deserialize(orderId, payload);
 
-        // Pour chaque type de pizza commandée
-        order.getPizzaQuantities().forEach((pizzanom, quantite) -> {
-            try {
-                // Récupérer les détails de la pizza dans le catalogue
-                Pizza pizzaInfo = trouverDansCatalogue(pizzanom);
+        // TODO Valider la commande
 
-                // Créer un objet DetailsPizza pour la préparation
-                Pizzaiolo.DetailsPizza detailsPizza = new Pizzaiolo.DetailsPizza(
-                        pizzaInfo.getNom(),
-                        pizzaInfo.getIngredients(),
-                        pizzaInfo.getPrix()
-                );
-
-                // Préparer les pizzas demandées
-                List<Pizzaiolo.Pizza> pizzaspreparees = new ArrayList<>();
-                for (int i = 0; i < quantite; i++) {
-                    System.out.println("Préparation de la pizza : " + pizzanom);
-                    // Préparer la pizza - cette méthode renvoie un objet Pizzaiolo.Pizza
-                    Pizzaiolo.Pizza pizzaPreparee = pizzaiolo.preparer(detailsPizza);
-                    // Ajouter à la liste des pizzas préparées
-                    pizzaspreparees.add(pizzaPreparee);
-                }
-
-                // Notifier que les pizzas sont préparées
-                envoyerNotificationClient(order.getId(), "Vos pizzas " + pizzanom + " sont en cours de cuisson", "BAKING");
-
-                // Cuire les pizzas
-                System.out.println("Cuisson des pizzas : " + pizzanom);
-                List<Pizzaiolo.Pizza> pizzasCuites = pizzaiolo.cuire(pizzaspreparees);
-
-                // Notification à l'utilisateur
-                envoyerNotificationClient(order.getId(), "Vos pizzas " + pizzanom + " sont prêtes !", "READY");
-
-            } catch (Exception e) {
-                System.out.println("Erreur lors de la préparation : " + e.getMessage());
-            }
-        });
+        // Traiter la commande
+        // TODO dans un thread séparé
+        processOrder(order);
     }
 
-    // Méthode pour envoyer une notification au client
-    private void envoyerNotificationClient(String orderId, String message, String status) {
+    private void processOrder(Order order) {
+        String orderId = order.getId();
+        int totalPizzas = 0;
+
         try {
-            String topic = "orders/" + orderId + "/" + status;
-            MqttMessage notification = new MqttMessage(message.getBytes());
-            notification.setQos(1);
-            client.publish(topic, notification);
-            System.out.println("Notification envoyée à " + topic + ": " + message);
+            // Étape 1: Commande validée
+            sendOrderStatus(orderId, "validated");
+
+            // Étape 2: Commande en préparation
+            sendOrderStatus(orderId, "preparing");
+
+            // Pour chaque type de pizza commandée
+            for (Map.Entry<String, Integer> entry : order.getPizzaQuantities().entrySet()) {
+                String pizzaName = entry.getKey();
+                int quantite = entry.getValue();
+                totalPizzas += quantite;
+
+                try {
+                    // Récupérer les détails de la pizza dans le catalogue
+                    Pizza pizzaInfo = trouverDansCatalogue(pizzaName);
+
+                    // Créer un objet DetailsPizza pour la préparation
+                    Pizzaiolo.DetailsPizza detailsPizza = pizzaiolo.getListePizzas()
+                            .stream()
+                            .filter(p -> p.nom().equals(pizzaName))
+                            .findFirst()
+                            .orElseThrow();
+
+                    // Préparer les pizzas demandées
+                    List<Pizzaiolo.Pizza> pizzasPreparees = new ArrayList<>();
+                    for (int i = 0; i < quantite; i++) {
+                        System.out.println("Préparation de la pizza : " + pizzaName);
+                        // Préparer la pizza - cette méthode renvoie un objet Pizzaiolo.Pizza
+                        Pizzaiolo.Pizza pizzaPreparee = pizzaiolo.preparer(detailsPizza);
+                        // Ajouter à la liste des pizzas préparées
+                        pizzasPreparees.add(pizzaPreparee);
+                    }
+
+                    // Étape 3: Cuisson
+                    sendOrderStatus(orderId, "cooking");
+                    System.out.println("Cuisson des pizzas : " + pizzaName);
+                    List<Pizzaiolo.Pizza> pizzasCuites = pizzaiolo.cuire(pizzasPreparees);
+
+                } catch (Exception e) {
+                    System.out.println("Erreur lors de la préparation : " + e.getMessage());
+                }
+            }
+
+            // Étape 4: Livraison
+            sendOrderStatus(orderId, "delivering");
+
+            // Notification de livraison avec le nombre de pizzas
+            envoyerNotificationLivraison(orderId, totalPizzas);
+
+        } catch (Exception e) {
+            System.out.println("Erreur lors du traitement de la commande: " + e.getMessage());
+        }
+    }
+
+    // Méthode pour envoyer une mise à jour de statut
+    private void sendOrderStatus(String orderId, String status) {
+        try {
+            MqttMessage statusMessage = new MqttMessage();
+            statusMessage.setQos(1);
+            client.publish("orders/" + orderId + "/status/" + status, statusMessage);
+            System.out.println("Statut de la commande " + orderId + " mis à jour: " + status);
         } catch (MqttException e) {
-            System.err.println("Erreur lors de l'envoi de la notification: " + e.getMessage());
+            System.err.println("Erreur lors de l'envoi du statut: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Méthode pour envoyer une notification de livraison
+     */
+    private void envoyerNotificationLivraison(String orderId, int pizzaCount) {
+        try {
+            MqttMessage deliveryMessage = new MqttMessage(String.valueOf(pizzaCount).getBytes());
+            deliveryMessage.setQos(1);
+            client.publish("orders/" + orderId + "/delivery", deliveryMessage);
+            System.out.println("Livraison de la commande " + orderId + " terminée: " + pizzaCount + " pizzas");
+        } catch (MqttException e) {
+            System.err.println("Erreur lors de l'envoi de la notification de livraison: " + e.getMessage());
         }
     }
 
