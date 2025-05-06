@@ -106,11 +106,48 @@ public class MQTTServer {
         // Désérialiser la commande
         Order order = Order.deserialize(orderId, payload);
 
-        // TODO Valider la commande
+        // Valider la commande
+        if (!validateOrder(order)) {
+            sendOrderCancelled(orderId);
+            return;
+        }
 
         // Traiter la commande
         // TODO dans un thread séparé
         processOrder(order);
+    }
+
+    private boolean validateOrder(Order order) {
+        for (Map.Entry<String, Integer> entry : order.getPizzaQuantities().entrySet()) {
+            String pizzaName = entry.getKey();
+            int quantity = entry.getValue();
+
+            // Vérifier que la pizza existe
+            boolean pizzaExists = false;
+            for (Pizza pizza : catalogue) {
+                if (pizza.getNom().equals(pizzaName)) {
+                    pizzaExists = true;
+                    break;
+                }
+            }
+
+            // Vérifier la quantité
+            if (!pizzaExists || quantity <= 0 || quantity >= 10) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void sendOrderCancelled(String orderId) {
+        try {
+            MqttMessage cancelMessage = new MqttMessage();
+            cancelMessage.setQos(1);
+            client.publish("orders/" + orderId + "/cancelled", cancelMessage);
+            System.out.println("Commande " + orderId + " annulée");
+        } catch (MqttException e) {
+            System.err.println("Erreur lors de l'envoi de l'annulation: " + e.getMessage());
+        }
     }
 
     private void processOrder(Order order) {
