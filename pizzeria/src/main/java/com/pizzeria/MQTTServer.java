@@ -114,12 +114,6 @@ public class MQTTServer {
         // Désérialiser la commande
         Order order = Order.deserialize(orderId, payload);
 
-        // Valider la commande
-        if (!validateOrder(order)) {
-            sendOrderCancelled(orderId);
-            return;
-        }
-
         // Traiter la commande dans un thread séparé
         executorService.submit(() -> processOrder(order));
     }
@@ -162,8 +156,13 @@ public class MQTTServer {
         int totalPizzas = 0;
 
         try {
-            // Étape 1: Commande validée
-            sendOrderStatus(orderId, "validated");
+            // Étape 1: Commande en validation
+            sendOrderStatus(orderId, "validating");
+
+            if (!validateOrder(order)) {
+                sendOrderCancelled(orderId);
+                return;
+            }
 
             // Étape 2: Commande en préparation
             sendOrderStatus(orderId, "preparing");
