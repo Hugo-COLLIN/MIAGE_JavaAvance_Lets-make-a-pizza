@@ -3,6 +3,7 @@ package com.pizzeria;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -21,12 +22,14 @@ public class MQTTServer {
     private List<Pizza> catalogue;
     private Pizzaiolo pizzaiolo;
     private ExecutorService executorService;
+    private Random random;
 
     public MQTTServer() {
         // Initialisation du catalogue de pizzas
         pizzaiolo = new Pizzaiolo(true);
         initCatalogue();
         executorService = Executors.newCachedThreadPool();
+        random = new Random();
     }
 
     private void initCatalogue() {
@@ -205,9 +208,16 @@ public class MQTTServer {
             // Étape 4: Livraison
             sendOrderStatus(orderId, "delivering");
 
+            // Temps de livraison variable (1500ms + 0-500ms aléatoire)
+            long deliveryTime = 1500 + random.nextInt(501);
+            Thread.sleep(deliveryTime);
+
             // Notification de livraison avec le nombre de pizzas
             envoyerNotificationLivraison(orderId, totalPizzas);
 
+        } catch (InterruptedException e) {
+            System.out.println("Interruption lors du traitement de la commande: " + e.getMessage());
+            Thread.currentThread().interrupt();
         } catch (Exception e) {
             System.out.println("Erreur lors du traitement de la commande: " + e.getMessage());
         }
