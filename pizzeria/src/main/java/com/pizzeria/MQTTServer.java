@@ -3,6 +3,8 @@ package com.pizzeria;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -18,11 +20,13 @@ public class MQTTServer {
     private MqttClient client;
     private List<Pizza> catalogue;
     private Pizzaiolo pizzaiolo;
+    private ExecutorService executorService;
 
     public MQTTServer() {
         // Initialisation du catalogue de pizzas
         pizzaiolo = new Pizzaiolo(true);
         initCatalogue();
+        executorService = Executors.newCachedThreadPool();
     }
 
     private void initCatalogue() {
@@ -88,6 +92,7 @@ public class MQTTServer {
 
     public void stop() {
         try {
+            executorService.shutdown();
             if (client != null && client.isConnected()) {
                 client.disconnect();
                 System.out.println("Déconnecté du broker MQTT");
@@ -112,9 +117,8 @@ public class MQTTServer {
             return;
         }
 
-        // Traiter la commande
-        // TODO dans un thread séparé
-        processOrder(order);
+        // Traiter la commande dans un thread séparé
+        executorService.submit(() -> processOrder(order));
     }
 
     private boolean validateOrder(Order order) {
