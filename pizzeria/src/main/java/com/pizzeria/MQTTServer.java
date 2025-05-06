@@ -42,6 +42,9 @@ public class MQTTServer {
         }
     }
 
+    /**
+     * Méthode pour démarrer le serveur MQTT
+     */
     public void start() {
         try {
             // Création du client MQTT
@@ -65,11 +68,21 @@ public class MQTTServer {
         }
     }
 
+    /**
+     * Méthode pour gérer les messages reçus
+     * @param topic Le topic du message
+     * @param message Le message reçu
+     */
     private void handleMessage(String topic, MqttMessage message) {
         String payload = new String(message.getPayload());
         System.out.println("Message reçu: " + payload);
     }
 
+    /**
+     * Méthode pour gérer les demandes de menu
+     * @param topic Le topic de la demande
+     * @param message Le message de demande
+     */
     private void handleMenuRequest(String topic, MqttMessage message) {
         System.out.println("Demande de menu reçue");
 
@@ -93,6 +106,9 @@ public class MQTTServer {
         }
     }
 
+    /**
+     * Méthode pour arrêter le serveur MQTT
+     */
     public void stop() {
         try {
             executorService.shutdown();
@@ -105,6 +121,11 @@ public class MQTTServer {
         }
     }
 
+    /**
+     * Méthode pour gérer les commandes reçues
+     * @param topic Le topic de la commande
+     * @param commande Le message de commande
+     */
     private void handleCommande(String topic, MqttMessage commande) {
         // Extraire l'ID de la commande du topic (orders/xxx)
         String orderId = topic.substring(topic.lastIndexOf('/') + 1);
@@ -118,39 +139,10 @@ public class MQTTServer {
         executorService.submit(() -> processOrder(order));
     }
 
-    private boolean validateOrder(Order order) {
-        for (Map.Entry<String, Integer> entry : order.getPizzaQuantities().entrySet()) {
-            String pizzaName = entry.getKey();
-            int quantity = entry.getValue();
-
-            // Vérifier que la pizza existe
-            boolean pizzaExists = false;
-            for (Pizza pizza : catalogue) {
-                if (pizza.getNom().equals(pizzaName)) {
-                    pizzaExists = true;
-                    break;
-                }
-            }
-
-            // Vérifier la quantité
-            if (!pizzaExists || quantity <= 0 || quantity >= 10) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void sendOrderCancelled(String orderId) {
-        try {
-            MqttMessage cancelMessage = new MqttMessage();
-            cancelMessage.setQos(1);
-            client.publish("orders/" + orderId + "/cancelled", cancelMessage);
-            System.out.println("Commande " + orderId + " annulée");
-        } catch (MqttException e) {
-            System.err.println("Erreur lors de l'envoi de l'annulation: " + e.getMessage());
-        }
-    }
-
+    /**
+     * Méthode pour traiter une commande
+     * @param order La commande à traiter
+     */
     private void processOrder(Order order) {
         String orderId = order.getId();
         int totalPizzas = 0;
@@ -222,7 +214,11 @@ public class MQTTServer {
         }
     }
 
-    // Méthode pour envoyer une mise à jour de statut
+    /**
+     * Méthode pour envoyer une notification de statut de commande
+     * @param orderId L'ID de la commande
+     * @param status Le statut de la commande
+     */
     private void sendOrderStatus(String orderId, String status) {
         try {
             MqttMessage statusMessage = new MqttMessage();
@@ -235,7 +231,51 @@ public class MQTTServer {
     }
 
     /**
+     * Méthode pour valider une commande
+     * @param order La commande à valider
+     */
+    private boolean validateOrder(Order order) {
+        for (Map.Entry<String, Integer> entry : order.getPizzaQuantities().entrySet()) {
+            String pizzaName = entry.getKey();
+            int quantity = entry.getValue();
+
+            // Vérifier que la pizza existe
+            boolean pizzaExists = false;
+            for (Pizza pizza : catalogue) {
+                if (pizza.getNom().equals(pizzaName)) {
+                    pizzaExists = true;
+                    break;
+                }
+            }
+
+            // Vérifier la quantité
+            if (!pizzaExists || quantity <= 0 || quantity >= 10) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Méthode pour envoyer une notification d'annulation de commande
+     * @param orderId L'ID de la commande annulée
+     */
+    private void sendOrderCancelled(String orderId) {
+        try {
+            MqttMessage cancelMessage = new MqttMessage();
+            cancelMessage.setQos(1);
+            client.publish("orders/" + orderId + "/cancelled", cancelMessage);
+            System.out.println("Commande " + orderId + " annulée");
+        } catch (MqttException e) {
+            System.err.println("Erreur lors de l'envoi de l'annulation: " + e.getMessage());
+        }
+    }
+
+
+    /**
      * Méthode pour envoyer une notification de livraison
+     * @param orderId L'ID de la commande livrée
+     * @param pizzaCount Le nombre de pizzas livrées
      */
     private void envoyerNotificationLivraison(String orderId, int pizzaCount) {
         try {
@@ -248,7 +288,12 @@ public class MQTTServer {
         }
     }
 
-    public Pizza trouverDansCatalogue(String nom) throws Exception{
+    /**
+     * Méthode pour trouver une pizza dans le catalogue
+     * @param nom Le nom de la pizza à rechercher
+     * @throws Exception si la pizza n'est pas trouvée
+     */
+    public Pizza trouverDansCatalogue(String nom) throws Exception {
         for(int i = 0; i < catalogue.size();i++){
             if(catalogue.get(i).serialize().split("\\|")[0].equals(nom)){return catalogue.get(i);}
         }
