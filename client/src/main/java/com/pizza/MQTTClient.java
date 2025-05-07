@@ -122,7 +122,7 @@ public class MQTTClient {
             if (client == null || !client.isConnected()) {
                 connect();
             }
-            String[] topics = {"validated", "preparing", "cooking", "delivering"};
+            String[] topics = {"validating", "preparing", "cooking", "delivering"};
 
             // TODO S'abonner aux topics de statut de cette commande
             for (String topic : topics) {
