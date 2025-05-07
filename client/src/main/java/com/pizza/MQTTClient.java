@@ -128,6 +128,7 @@ public class MQTTClient {
             for (String topic : topics) {
                 client.subscribe("orders/" + order.getId() + "/status/" + topic, this::handleNotification);
             }
+            client.subscribe("orders/" + order.getId() + "/delivery", this::handleDelivery);
             // Envoyer la commande sur le bon topic (orders/xxx)
             MqttMessage mqttMessage = new MqttMessage(order.serialize().getBytes());
             mqttMessage.setQos(1);
@@ -147,6 +148,14 @@ public class MQTTClient {
         System.out.println("Notification reçue [" + topic + "]");
         if (notificationCallback != null) {
             notificationCallback.accept("command " + id + " is " + status);
+        }
+    }
+
+    public void handleDelivery(String topic, MqttMessage message) {
+        String id = topic.split("/")[1];
+        System.out.println("Notification de livraison reçue [" + topic + "]");
+        if (notificationCallback != null) {
+            notificationCallback.accept("command " + id + " is delivered");
         }
     }
 }
