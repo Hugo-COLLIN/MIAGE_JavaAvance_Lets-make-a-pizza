@@ -17,6 +17,7 @@ public class MQTTClient {
     private MqttClient client;
     private CompletableFuture<List<Pizza>> menuFuture;
     private Consumer<List<Pizza>> menuCallback;
+    private Consumer<String> notificationCallback;
 
     public void connect() throws MqttException {
         client = new MqttClient(broker, clientId, new MemoryPersistence());
@@ -121,9 +122,13 @@ public class MQTTClient {
             if (client == null || !client.isConnected()) {
                 connect();
             }
+            String[] topics = {"validating", "preparing", "cooking", "delivering"};
 
             // TODO S'abonner aux topics de statut de cette commande
-
+            for (String topic : topics) {
+                client.subscribe("orders/" + order.getId() + "/status/" + topic, this::handleNotification);
+            }
+            client.subscribe("orders/" + order.getId() + "/delivery", this::handleDelivery);
             // Envoyer la commande sur le bon topic (orders/xxx)
             MqttMessage mqttMessage = new MqttMessage(order.serialize().getBytes());
             mqttMessage.setQos(1);
@@ -131,6 +136,26 @@ public class MQTTClient {
             System.out.println("Commande envoyée: " + order.serialize());
         } catch (MqttException e) {
             System.err.println("Erreur lors de l'envoi de la commande: " + e.getMessage());
+        }
+    }
+
+    public void setNotificationCallback(Consumer<String> callback) {
+        this.notificationCallback = callback;
+    }
+    public void handleNotification(String topic, MqttMessage message) {
+        String id = topic.split("/")[1];
+        String status = topic.split("/")[3];
+        System.out.println("Notification reçue [" + topic + "]");
+        if (notificationCallback != null) {
+            notificationCallback.accept("command " + id + " is " + status);
+        }
+    }
+
+    public void handleDelivery(String topic, MqttMessage message) {
+        String id = topic.split("/")[1];
+        System.out.println("Notification de livraison reçue [" + topic + "]");
+        if (notificationCallback != null) {
+            notificationCallback.accept("command " + id + " is delivered");
         }
     }
 }
