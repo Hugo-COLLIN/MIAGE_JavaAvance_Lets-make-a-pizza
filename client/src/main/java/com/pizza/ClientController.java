@@ -38,6 +38,7 @@ public class ClientController {
             mqttClient.connect();
             mqttClient.setMenuCallback(this::updateMenuUI);
             mqttClient.setNotificationCallback(this::showNotification);
+            mqttClient.setErrorCallback(this::showError);
             this.onRequestMenu();
         } catch (Exception e) {
             showError("Erreur de connexion MQTT", e.getMessage());
@@ -140,11 +141,13 @@ public class ClientController {
     }
 
     private void showError(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
     }
 
     public void shutdown() {
@@ -160,5 +163,9 @@ public class ClientController {
     public void showNotification(String message) {
         System.out.println("Notification: " + message);
         updateStatus(message);
+    }
+
+    public void showError(String[] error) {
+        showError(error[0], error[1]);
     }
 }

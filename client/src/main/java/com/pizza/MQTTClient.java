@@ -19,6 +19,10 @@ public class MQTTClient {
     private Consumer<List<Pizza>> menuCallback;
     private Consumer<String> notificationCallback;
 
+    private Consumer<String[]> errorCallback;
+
+    private TimeoutTimer timeoutTimer;
+
     public void connect() throws MqttException {
         client = new MqttClient(broker, clientId, new MemoryPersistence());
         MqttConnectOptions options = new MqttConnectOptions();
@@ -59,6 +63,9 @@ public class MQTTClient {
             mqttMessage.setQos(1);
             client.publish("bcast/i_am_ungry", mqttMessage);
             System.out.println("Demande de menu envoyée");
+            // lancer le timer de timout
+            timeoutTimer = new TimeoutTimer(5000, this::handleError, "Le menu n'a pas pu être récupéré");
+            timeoutTimer.start();
             return menuFuture;
         } catch (MqttException e) {
             System.err.println("Erreur lors de la demande de menu: " + e.getMessage());
@@ -70,6 +77,10 @@ public class MQTTClient {
 
     private void handleMenuResponse(String topic, MqttMessage message) {
         try {
+            // Arrêter le timer de timeout
+            if (timeoutTimer != null) {
+                timeoutTimer.interrupt();
+            }
             String payload = new String(message.getPayload());
             System.out.println("Menu reçu: " + payload);
 
@@ -142,6 +153,10 @@ public class MQTTClient {
     public void setNotificationCallback(Consumer<String> callback) {
         this.notificationCallback = callback;
     }
+
+    public void setErrorCallback(Consumer<String[]> callback) {
+        this.errorCallback = callback;
+    }
     public void handleNotification(String topic, MqttMessage message) {
         String id = topic.split("/")[1];
         String status = topic.split("/")[3];
@@ -156,6 +171,13 @@ public class MQTTClient {
         System.out.println("Notification de livraison reçue [" + topic + "]");
         if (notificationCallback != null) {
             notificationCallback.accept("command " + id + " is delivered");
+        }
+    }
+
+    public void handleError(String [] message) {
+        System.out.println("error [" + message[1] + "]");
+        if (errorCallback != null) {
+            errorCallback.accept(message);
         }
     }
 }
