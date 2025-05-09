@@ -26,21 +26,27 @@ public class MQTTServer {
 
     public MQTTServer() {
         // Initialisation du catalogue de pizzas
-        pizzaiolo = new Pizzaiolo(true);
+        pizzaiolo = new Pizzaiolo(false);
         initCatalogue();
-        executorService = Executors.newCachedThreadPool();
+        executorService = Executors.newFixedThreadPool(6);
         random = new Random();
     }
 
     private void initCatalogue() {
         catalogue = new ArrayList<>();
         for (Pizzaiolo.DetailsPizza detailsPizza : pizzaiolo.getListePizzas()) {
-            catalogue.add(new Pizza(
-                    detailsPizza.nom(),
-                    detailsPizza.ingredients().stream().map(Pizzaiolo.Ingredient::toString).toList(),
+            //le pizzaiolo déteste la pizza : gestion de sa haine avec cette condition
+            if(!detailsPizza.ingredients().contains(Pizzaiolo.Ingredient.ANANAS))
+                catalogue.add(new Pizza(
+                    satanize(detailsPizza.nom()),
+                    detailsPizza.ingredients().stream()
+                            .map(Pizzaiolo.Ingredient::toString)
+                            .map(this::satanize)
+                            .toList(),
                     detailsPizza.prix()));
         }
     }
+
 
     /**
      * Méthode pour démarrer le serveur MQTT
@@ -186,11 +192,12 @@ public class MQTTServer {
                         pizzasPreparees.add(pizzaPreparee);
                     }
 
-                    // Étape 3: Cuisson
-                    sendOrderStatus(orderId, "cooking");
-                    System.out.println("Cuisson des pizzas : " + pizzaName);
-                    List<Pizzaiolo.Pizza> pizzasCuites = pizzaiolo.cuire(pizzasPreparees);
-
+                    // Étape 3 : Cuisson
+                    synchronized (this){
+                        sendOrderStatus(orderId, "cooking");
+                        System.out.println("Cuisson des pizzas : " + pizzaName);
+                        List<Pizzaiolo.Pizza> pizzasCuites = pizzaiolo.cuire(pizzasPreparees);
+                    }
                 } catch (Exception e) {
                     System.out.println("Erreur lors de la préparation : " + e.getMessage());
                 }
@@ -298,5 +305,17 @@ public class MQTTServer {
             if(catalogue.get(i).serialize().split("\\|")[0].equals(nom)){return catalogue.get(i);}
         }
         throw new Exception("Nom de pizza introuvable dans le catalogue");
+    }
+
+    /**
+     * Méthode qui permet d'enlever des caractères exotiques dans les pizzas
+     * @param str string à nettoyer
+     */
+    private String satanize(String str){
+        return str.replace("|", "")
+                .replace(",", "")
+                .replace(";", "")
+                .replace("]", "")
+                .replace("[", "");
     }
 }
