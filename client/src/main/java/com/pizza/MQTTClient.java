@@ -135,7 +135,7 @@ public class MQTTClient {
             mqttMessage.setQos(1);
             client.publish("orders/" + order.getId(), mqttMessage);
             System.out.println("Commande envoyée: " + order.serialize());
-            changerVisuel.accept("changement de scene");
+            changerVisuel.accept("changement");
         } catch (MqttException e) {
             System.err.println("Erreur lors de l'envoi de la commande: " + e.getMessage());
         }
@@ -164,6 +164,6 @@ public class MQTTClient {
 
     public void setChangerVisuel(Consumer<String> consumer)
     {
-
+        this.changerVisuel = consumer;
     }
 }
