@@ -8,17 +8,29 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class ClientApplication extends Application {
+    private static Stage primaryStage;
     private ClientController controller;
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(ClientApplication.class.getResource("client-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 500, 500);
-        controller = fxmlLoader.getController();
+        primaryStage = stage;
+        loadWelcomeScreen();
 
         stage.setTitle("Pizza Client");
-        stage.setScene(scene);
         stage.show();
+    }
+
+    public static void loadWelcomeScreen() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(ClientApplication.class.getResource("welcome-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 500, 500);
+        primaryStage.setScene(scene);
+    }
+
+    public static void loadOrderScreen() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(ClientApplication.class.getResource("client-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 500, 500);
+        ClientController controller = fxmlLoader.getController();
+        primaryStage.setScene(scene);
     }
 
     @Override
