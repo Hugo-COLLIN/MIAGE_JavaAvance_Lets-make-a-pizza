@@ -18,6 +18,7 @@ public class MQTTClient {
     private CompletableFuture<List<Pizza>> menuFuture;
     private Consumer<List<Pizza>> menuCallback;
     private Consumer<String> notificationCallback;
+    private Consumer<String> changerVisuel;
 
     public void connect() throws MqttException {
         client = new MqttClient(broker, clientId, new MemoryPersistence());
@@ -134,6 +135,7 @@ public class MQTTClient {
             mqttMessage.setQos(1);
             client.publish("orders/" + order.getId(), mqttMessage);
             System.out.println("Commande envoyée: " + order.serialize());
+            changerVisuel.accept("changement de scene");
         } catch (MqttException e) {
             System.err.println("Erreur lors de l'envoi de la commande: " + e.getMessage());
         }
@@ -157,5 +159,11 @@ public class MQTTClient {
         if (notificationCallback != null) {
             notificationCallback.accept("command " + id + " is delivered");
         }
+    }
+
+
+    public void setChangerVisuel(Consumer<String> consumer)
+    {
+
     }
 }

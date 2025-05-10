@@ -1,5 +1,6 @@
 package com.pizza;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ public class ClientController {
             mqttClient.connect();
             mqttClient.setMenuCallback(this::updateMenuUI);
             mqttClient.setNotificationCallback(this::showNotification);
+            mqttClient.setChangerVisuel(this::switchScene);
             this.onRequestMenu();
         } catch (Exception e) {
             showError("Erreur de connexion MQTT", e.getMessage());
@@ -160,5 +162,14 @@ public class ClientController {
     public void showNotification(String message) {
         System.out.println("Notification: " + message);
         updateStatus(message);
+    }
+
+    public void switchScene(String scene){
+        try{
+            ClientApplication.loadOrderScreen();
+        }
+        catch(IOException e){
+            System.out.print(e.fillInStackTrace());
+        }
     }
 }
