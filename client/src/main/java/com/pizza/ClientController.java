@@ -38,7 +38,6 @@ public class ClientController {
         try {
             mqttClient.connect();
             mqttClient.setMenuCallback(this::updateMenuUI);
-            mqttClient.setNotificationCallback(this::showNotification);
             mqttClient.setChangerVisuel(this::switchScene);
             this.onRequestMenu();
         } catch (Exception e) {
@@ -155,18 +154,9 @@ public class ClientController {
         }
     }
 
-    private void updateStatus(String status) {
-        Platform.runLater(() -> statusLabel.setText(status));
-    }
-
-    public void showNotification(String message) {
-        System.out.println("Notification: " + message);
-        updateStatus(message);
-    }
-
     public void switchScene(String scene){
         try{
-            ClientApplication.loadOrderScreen();
+            ClientApplication.loadOrderViewScreen();
         }
         catch(IOException e){
             System.out.print(e.fillInStackTrace());
