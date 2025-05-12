@@ -19,6 +19,7 @@ public class MQTTClient {
     private Consumer<List<Pizza>> menuCallback;
     private Consumer<String> notificationCallback;
     private Consumer<String> changerVisuel;
+    private Runnable fonctionBoutonLivraison; 
 
     public void connect() throws MqttException {
         client = new MqttClient(broker, clientId, new MemoryPersistence());
@@ -155,6 +156,7 @@ public class MQTTClient {
     public void handleDelivery(String topic, MqttMessage message) {
         String id = topic.split("/")[1];
         System.out.println("Notification de livraison reçue [" + topic + "]");
+        fonctionBoutonLivraison.run();
         if (notificationCallback != null) {
             notificationCallback.accept("command " + id + " is delivered");
         }
@@ -164,5 +166,9 @@ public class MQTTClient {
     public void setChangerVisuel(Consumer<String> consumer)
     {
         this.changerVisuel = consumer;
+    }
+
+    public void setFonctionBoutonLivraison(Runnable runnable){
+        fonctionBoutonLivraison = runnable;   
     }
 }
