@@ -48,4 +48,10 @@ public class OrderController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    //TODO
+    @FXML
+    private void onBoutonFinClick(){
+
+    }
 }
