@@ -8,7 +8,6 @@
 <?import javafx.scene.layout.VBox?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.pizza.OrderController"
             prefHeight="500" prefWidth="600">
 
     <center>
@@ -17,9 +16,9 @@
                 <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
             <Label text="Votre commande est en cours" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-            <Label fx:id="infoStatue" style="-fx-font-size: 16px;"/>
+            <Label fx:id="infoStatus" style="-fx-font-size: 16px;"/>
 
-            <Button text="Terminer Commande"
+            <Button fx:id="boutonFin" text="Terminer Commande" visible="false"
                     style="-fx-font-size: 16px; -fx-padding: 10 20 10 20;"/>
         </VBox>
     </center>

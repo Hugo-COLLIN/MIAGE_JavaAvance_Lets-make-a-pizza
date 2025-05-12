@@ -33,10 +33,11 @@ public class ClientApplication extends Application {
         primaryStage.setScene(scene);
     }
 
-    public static void loadOrderViewScreen() throws IOException {
+    public static void loadOrderViewScreen(MQTTClient mqttc) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(ClientApplication.class.getResource("order-view.fxml"));
+        OrderController controller = new OrderController(mqttc);
+        fxmlLoader.setController(controller);
         Scene scene = new Scene(fxmlLoader.load(), 500, 500);
-        OrderController controller = fxmlLoader.getController();
         primaryStage.setScene(scene);
     }
 

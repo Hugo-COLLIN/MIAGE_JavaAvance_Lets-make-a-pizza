@@ -125,7 +125,6 @@ public class MQTTClient {
             }
             String[] topics = {"validating", "preparing", "cooking", "delivering"};
 
-            // TODO S'abonner aux topics de statut de cette commande
             for (String topic : topics) {
                 client.subscribe("orders/" + order.getId() + "/status/" + topic, this::handleNotification);
             }
@@ -149,7 +148,7 @@ public class MQTTClient {
         String status = topic.split("/")[3];
         System.out.println("Notification reçue [" + topic + "]");
         if (notificationCallback != null) {
-            notificationCallback.accept("command " + id + " is " + status);
+            notificationCallback.accept(id + "/" + status);
         }
     }
 
