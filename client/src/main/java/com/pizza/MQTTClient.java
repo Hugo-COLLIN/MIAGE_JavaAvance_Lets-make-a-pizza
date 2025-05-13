@@ -36,6 +36,11 @@ public class MQTTClient {
         client.subscribe("bcast/menu", this::handleMenuResponse);
     }
 
+    /**
+     * Méthode pour envoyer un message vers la pizzeria
+     * Note : Etait utilisée pour tester la communication entre client et pizzeria
+     * @param message Le message à envoyer
+     */
     public void sendMessage(String message) {
         try {
             if (client == null || !client.isConnected()) {
