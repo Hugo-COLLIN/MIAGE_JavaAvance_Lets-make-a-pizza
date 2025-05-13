@@ -6,7 +6,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
-public class OrderController {
+public class WaitingController {
     @FXML
     private Label infoStatus;
     @FXML
@@ -14,7 +14,7 @@ public class OrderController {
 
     private MQTTClient mqttClient;
 
-    public OrderController(MQTTClient mqttc){
+    public WaitingController(MQTTClient mqttc){
         mqttClient = mqttc;
         try{
             mqttClient.setNotificationCallback(this::showNotification);

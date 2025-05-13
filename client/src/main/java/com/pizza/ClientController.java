@@ -156,7 +156,7 @@ public class ClientController {
 
     public void switchScene(String scene){
         try{
-            ClientApplication.loadOrderViewScreen(mqttClient);
+            ClientApplication.loadWaitingScreen(mqttClient);
         }
         catch(IOException e){
             System.out.print(e.fillInStackTrace());
