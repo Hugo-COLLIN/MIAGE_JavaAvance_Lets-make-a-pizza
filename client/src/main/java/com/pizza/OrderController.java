@@ -15,7 +15,7 @@ import javafx.scene.control.Spinner;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-public class ClientController {
+public class OrderController {
     @FXML
     private Label statusLabel;
 

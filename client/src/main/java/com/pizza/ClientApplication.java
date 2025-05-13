@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 
 public class ClientApplication extends Application {
     private static Stage primaryStage;
-    private ClientController controller;
+    private OrderController controller;
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -27,9 +27,9 @@ public class ClientApplication extends Application {
     }
 
     public static void loadOrderScreen() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(ClientApplication.class.getResource("client-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(ClientApplication.class.getResource("order-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 500, 500);
-        ClientController controller = fxmlLoader.getController();
+        OrderController controller = fxmlLoader.getController();
         primaryStage.setScene(scene);
     }
 
