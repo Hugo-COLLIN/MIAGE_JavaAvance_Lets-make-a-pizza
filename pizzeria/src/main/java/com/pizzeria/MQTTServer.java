@@ -35,15 +35,13 @@ public class MQTTServer {
     private void initCatalogue() {
         catalogue = new ArrayList<>();
         for (Pizzaiolo.DetailsPizza detailsPizza : pizzaiolo.getListePizzas()) {
-            //le pizzaiolo déteste la pizza : gestion de sa haine avec cette condition
-            if(!detailsPizza.ingredients().contains(Pizzaiolo.Ingredient.ANANAS))
-                catalogue.add(new Pizza(
-                    satanize(detailsPizza.nom()),
-                    detailsPizza.ingredients().stream()
-                            .map(Pizzaiolo.Ingredient::toString)
-                            .map(this::satanize)
-                            .toList(),
-                    detailsPizza.prix()));
+            catalogue.add(new Pizza(
+                satanize(detailsPizza.nom()),
+                detailsPizza.ingredients().stream()
+                        .map(Pizzaiolo.Ingredient::toString)
+                        .map(this::satanize)
+                        .toList(),
+                detailsPizza.prix()));
         }
     }
 
@@ -151,7 +149,11 @@ public class MQTTServer {
      */
     private void processOrder(Order order) {
         String orderId = order.getId();
+        // en cas d'erreur, string indiquant les pizzas non prêtes
+        String noticePizza = "";
         int totalPizzas = 0;
+        int pizzasPretes = 0;
+        List<Pizzaiolo.Pizza> pizzasCuites = new ArrayList<>();
 
         try {
             // Étape 1: Commande en validation
@@ -196,11 +198,27 @@ public class MQTTServer {
                     synchronized (this){
                         sendOrderStatus(orderId, "cooking");
                         System.out.println("Cuisson des pizzas : " + pizzaName);
-                        List<Pizzaiolo.Pizza> pizzasCuites = pizzaiolo.cuire(pizzasPreparees);
+                        pizzasCuites.addAll(pizzaiolo.cuire(pizzasPreparees));
                     }
-                } catch (Exception e) {
+                    pizzasPretes += quantite;
+                    System.out.println(pizzasPretes);
+                } catch (IllegalArgumentException e) {
+                    // Gestion d'ingrédients indisponibles
+                    System.out.println("Préparation de la pizza impossible : " + pizzaName);
+                    noticePizza += quantite;
+                    if(quantite>1) {
+                        noticePizza += " pizzas " + pizzaName + "s ,";
+                    } else noticePizza += " pizza " + pizzaName + ",";
+                }
+                catch (Exception e) {
                     System.out.println("Erreur lors de la préparation : " + e.getMessage());
                 }
+            }
+            System.out.println(pizzasPretes);
+            // Aucune pizza préparée : annulation totale, sinon on envoie quand même les pizzas déjà préparées
+            if(pizzasPretes == 0){
+                sendOrderCancelled(orderId);
+                return;
             }
 
             // Étape 4: Livraison
@@ -209,6 +227,17 @@ public class MQTTServer {
             // Temps de livraison variable (1500ms + 0-500ms aléatoire)
             long deliveryTime = 1500 + random.nextInt(501);
             Thread.sleep(deliveryTime);
+
+            // Vérification commande
+            System.out.println("Commandé : " + order);
+            System.out.print("Envoyé : ");
+            for (Pizzaiolo.Pizza p : pizzasCuites) System.out.print(p.nom() + ", ");
+
+            // Notification de livraison avec le nombre de pizzas et une notice des pizzas non envoyées
+            if(pizzasPretes != totalPizzas){
+                envoyerNotificationLivraison(orderId, pizzasPretes, "avec des pizzas n'ayant pas pu être délivrées : " + noticePizza.substring(0, noticePizza.length() - 1));
+                return;
+            }
 
             // Notification de livraison avec le nombre de pizzas
             envoyerNotificationLivraison(orderId, totalPizzas);
@@ -283,16 +312,22 @@ public class MQTTServer {
      * Méthode pour envoyer une notification de livraison
      * @param orderId L'ID de la commande livrée
      * @param pizzaCount Le nombre de pizzas livrées
+     * @param notification en cas d'erreur dans la commande, pour préciser les pizzas non livrées
      */
-    private void envoyerNotificationLivraison(String orderId, int pizzaCount) {
+    private void envoyerNotificationLivraison(String orderId, int pizzaCount, String notification) {
         try {
             MqttMessage deliveryMessage = new MqttMessage(String.valueOf(pizzaCount).getBytes());
             deliveryMessage.setQos(1);
             client.publish("orders/" + orderId + "/delivery", deliveryMessage);
-            System.out.println("Livraison de la commande " + orderId + " terminée: " + pizzaCount + " pizzas");
+            System.out.println("Livraison de la commande " + orderId + " terminée: " + pizzaCount + " pizzas " + notification);
         } catch (MqttException e) {
             System.err.println("Erreur lors de l'envoi de la notification de livraison: " + e.getMessage());
         }
+    }
+
+    // Méthode de convenance si nous n'avons pas d'erreur dans la commande
+    private void envoyerNotificationLivraison(String orderId, int pizzaCount) {
+        envoyerNotificationLivraison(orderId, pizzaCount, "");
     }
 
     /**
