@@ -1,4 +1,4 @@
-package com.pizza;
+package com.pizza.controllers;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -15,7 +15,12 @@ import javafx.scene.control.Spinner;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-public class ClientController {
+import com.pizza.ClientApplication;
+import com.pizza.MQTTClient;
+import com.pizza.model.Order;
+import com.pizza.model.Pizza;
+
+public class OrderController {
     @FXML
     private Label statusLabel;
 
@@ -156,7 +161,7 @@ public class ClientController {
 
     public void switchScene(String scene){
         try{
-            ClientApplication.loadOrderViewScreen(mqttClient);
+            ClientApplication.loadWaitingScreen(mqttClient);
         }
         catch(IOException e){
             System.out.print(e.fillInStackTrace());

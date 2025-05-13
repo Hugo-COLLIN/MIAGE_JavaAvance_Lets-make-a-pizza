@@ -1,4 +1,4 @@
-package com.pizza;
+package com.pizza.controllers;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -6,7 +6,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
-public class OrderController {
+import com.pizza.ClientApplication;
+import com.pizza.MQTTClient;
+
+public class WaitingController {
     @FXML
     private Label infoStatus;
     @FXML
@@ -14,7 +17,7 @@ public class OrderController {
 
     private MQTTClient mqttClient;
 
-    public OrderController(MQTTClient mqttc){
+    public WaitingController(MQTTClient mqttc){
         mqttClient = mqttc;
         try{
             mqttClient.setNotificationCallback(this::showNotification);

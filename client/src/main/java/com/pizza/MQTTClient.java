@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
+import com.pizza.model.Order;
+import com.pizza.model.Pizza;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -19,7 +21,7 @@ public class MQTTClient {
     private Consumer<List<Pizza>> menuCallback;
     private Consumer<String> notificationCallback;
     private Consumer<String> changerVisuel;
-    private Runnable fonctionBoutonLivraison; 
+    private Runnable fonctionBoutonLivraison;
 
     public void connect() throws MqttException {
         client = new MqttClient(broker, clientId, new MemoryPersistence());
@@ -169,6 +171,6 @@ public class MQTTClient {
     }
 
     public void setFonctionBoutonLivraison(Runnable runnable){
-        fonctionBoutonLivraison = runnable;   
+        fonctionBoutonLivraison = runnable;
     }
 }
