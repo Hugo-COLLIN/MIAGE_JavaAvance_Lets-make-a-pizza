@@ -56,7 +56,7 @@ public class WaitingController {
     @FXML
     private void onBoutonFinClick(){
         try {
-            ClientApplication.loadOrderScreen();
+            ClientApplication.loadWelcomeScreen();
         } catch (Exception e) {
             System.out.println("Probleme lors du reload");
             showError("Erreur", e.getMessage());
