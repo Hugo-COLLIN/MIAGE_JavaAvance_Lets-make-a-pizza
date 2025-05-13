@@ -52,6 +52,11 @@ public class OrderController {
     //TODO
     @FXML
     private void onBoutonFinClick(){
-
+        try {
+            ClientApplication.loadOrderScreen();
+        } catch (Exception e) {
+            System.out.println("Probleme lors du reload");
+            showError("Erreur", e.getMessage());
+        }
     }
 }
