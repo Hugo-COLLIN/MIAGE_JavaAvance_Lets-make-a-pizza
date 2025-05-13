@@ -6,7 +6,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.pizza.OrderController"
+            fx:controller="com.pizza.controllers.OrderController"
             prefHeight="500" prefWidth="600">
 
     <!-- En-tête -->

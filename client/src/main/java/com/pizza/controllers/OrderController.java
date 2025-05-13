@@ -1,4 +1,4 @@
-package com.pizza;
+package com.pizza.controllers;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -14,6 +14,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+
+import com.pizza.ClientApplication;
+import com.pizza.MQTTClient;
+import com.pizza.model.Order;
+import com.pizza.model.Pizza;
 
 public class OrderController {
     @FXML

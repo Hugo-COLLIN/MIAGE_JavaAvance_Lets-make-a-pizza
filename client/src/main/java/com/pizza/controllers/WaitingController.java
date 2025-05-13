@@ -1,10 +1,13 @@
-package com.pizza;
+package com.pizza.controllers;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+
+import com.pizza.ClientApplication;
+import com.pizza.MQTTClient;
 
 public class WaitingController {
     @FXML

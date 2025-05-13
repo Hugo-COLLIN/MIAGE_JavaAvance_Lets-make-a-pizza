@@ -5,4 +5,8 @@ module idmc.letsmakeapizzajfx {
 
     opens com.pizza to javafx.fxml;
     exports com.pizza;
+    exports com.pizza.controllers;
+    opens com.pizza.controllers to javafx.fxml;
+    exports com.pizza.model;
+    opens com.pizza.model to javafx.fxml;
 }

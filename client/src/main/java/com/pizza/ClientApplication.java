@@ -2,6 +2,8 @@ package com.pizza;
 
 import java.io.IOException;
 
+import com.pizza.controllers.OrderController;
+import com.pizza.controllers.WaitingController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
