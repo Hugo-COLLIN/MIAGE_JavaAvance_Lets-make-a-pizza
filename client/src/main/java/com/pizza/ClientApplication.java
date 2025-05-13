@@ -1,11 +1,11 @@
 package com.pizza;
 
+import java.io.IOException;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
-import java.io.IOException;
 
 public class ClientApplication extends Application {
     private static Stage primaryStage;
@@ -30,6 +30,14 @@ public class ClientApplication extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(ClientApplication.class.getResource("client-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 500, 500);
         ClientController controller = fxmlLoader.getController();
+        primaryStage.setScene(scene);
+    }
+
+    public static void loadOrderViewScreen(MQTTClient mqttc) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(ClientApplication.class.getResource("order-view.fxml"));
+        OrderController controller = new OrderController(mqttc);
+        fxmlLoader.setController(controller);
+        Scene scene = new Scene(fxmlLoader.load(), 500, 500);
         primaryStage.setScene(scene);
     }
 

@@ -18,6 +18,8 @@ public class MQTTClient {
     private CompletableFuture<List<Pizza>> menuFuture;
     private Consumer<List<Pizza>> menuCallback;
     private Consumer<String> notificationCallback;
+    private Consumer<String> changerVisuel;
+    private Runnable fonctionBoutonLivraison; 
 
     public void connect() throws MqttException {
         client = new MqttClient(broker, clientId, new MemoryPersistence());
@@ -124,7 +126,6 @@ public class MQTTClient {
             }
             String[] topics = {"validating", "preparing", "cooking", "delivering"};
 
-            // TODO S'abonner aux topics de statut de cette commande
             for (String topic : topics) {
                 client.subscribe("orders/" + order.getId() + "/status/" + topic, this::handleNotification);
             }
@@ -134,6 +135,7 @@ public class MQTTClient {
             mqttMessage.setQos(1);
             client.publish("orders/" + order.getId(), mqttMessage);
             System.out.println("Commande envoyée: " + order.serialize());
+            changerVisuel.accept("changement");
         } catch (MqttException e) {
             System.err.println("Erreur lors de l'envoi de la commande: " + e.getMessage());
         }
@@ -147,15 +149,26 @@ public class MQTTClient {
         String status = topic.split("/")[3];
         System.out.println("Notification reçue [" + topic + "]");
         if (notificationCallback != null) {
-            notificationCallback.accept("command " + id + " is " + status);
+            notificationCallback.accept(id + "/" + status);
         }
     }
 
     public void handleDelivery(String topic, MqttMessage message) {
         String id = topic.split("/")[1];
         System.out.println("Notification de livraison reçue [" + topic + "]");
+        fonctionBoutonLivraison.run();
         if (notificationCallback != null) {
             notificationCallback.accept("command " + id + " is delivered");
         }
+    }
+
+
+    public void setChangerVisuel(Consumer<String> consumer)
+    {
+        this.changerVisuel = consumer;
+    }
+
+    public void setFonctionBoutonLivraison(Runnable runnable){
+        fonctionBoutonLivraison = runnable;   
     }
 }
