@@ -68,12 +68,6 @@ public class OrderController {
     }
 
     @FXML
-    protected void onSendMessageButtonClick() {
-        statusLabel.setText("Message envoyé à la pizzeria!");
-        mqttClient.sendMessage("HelloWorld");
-    }
-
-    @FXML
     protected void onPlaceOrderButtonClick() {
         // Vérifier si au moins une pizza est sélectionnée
         boolean hasSelection = false;

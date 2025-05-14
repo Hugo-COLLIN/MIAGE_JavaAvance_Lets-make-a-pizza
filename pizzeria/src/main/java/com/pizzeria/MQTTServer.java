@@ -61,7 +61,6 @@ public class MQTTServer {
             System.out.println("Connecté au broker MQTT");
 
             // Abonnement aux topics
-            client.subscribe("pizza/messages", this::handleMessage);
             client.subscribe("bcast/i_am_ungry", this::handleMenuRequest);
             client.subscribe("orders/+", this::handleCommande);
 
@@ -70,16 +69,6 @@ public class MQTTServer {
             System.err.println("Erreur lors de la connexion au broker MQTT: " + e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Méthode pour gérer les messages reçus
-     * @param topic Le topic du message
-     * @param message Le message reçu
-     */
-    private void handleMessage(String topic, MqttMessage message) {
-        String payload = new String(message.getPayload());
-        System.out.println("Message reçu: " + payload);
     }
 
     /**

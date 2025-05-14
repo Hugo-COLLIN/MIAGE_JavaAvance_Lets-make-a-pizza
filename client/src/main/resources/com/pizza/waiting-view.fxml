@@ -18,7 +18,7 @@
             <Label text="Votre commande est en cours" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
             <Label fx:id="infoStatus" style="-fx-font-size: 16px;"/>
 
-            <Button fx:id="boutonFin" text="Terminer Commande" visible="false" onAction="#onBoutonFinClick"
+            <Button fx:id="boutonFin" text="Retour à l'accueil" visible="false" onAction="#onBoutonFinClick"
                     style="-fx-font-size: 16px; -fx-padding: 10 20 10 20;"/>
         </VBox>
     </center>

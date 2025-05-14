@@ -41,7 +41,6 @@
             </padding>
             <Button fx:id="requestMenuButton" text="Actualiser le menu" onAction="#onRequestMenu"/>
             <Button fx:id="orderButton" text="Passer commande" onAction="#onPlaceOrderButtonClick" disable="true"/>
-            <Button text="Envoyer un message" onAction="#onSendMessageButtonClick"/>
         </HBox>
     </bottom>
 

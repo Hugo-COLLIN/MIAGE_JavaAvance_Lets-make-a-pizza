@@ -36,21 +36,6 @@ public class MQTTClient {
         client.subscribe("bcast/menu", this::handleMenuResponse);
     }
 
-    public void sendMessage(String message) {
-        try {
-            if (client == null || !client.isConnected()) {
-                connect();
-            }
-
-            MqttMessage mqttMessage = new MqttMessage(message.getBytes());
-            mqttMessage.setQos(1);
-            client.publish("pizza/messages", mqttMessage);
-            System.out.println("Message envoyé: " + message);
-        } catch (MqttException e) {
-            System.err.println("Erreur lors de l'envoi du message: " + e.getMessage());
-        }
-    }
-
     public CompletableFuture<List<Pizza>> requestMenu() {
         try {
             if (client == null || !client.isConnected()) {
