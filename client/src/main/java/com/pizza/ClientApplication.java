@@ -48,8 +48,13 @@ public class ClientApplication extends Application {
 
     @Override
     public void stop() {
-        if (controller != null) {
-            controller.shutdown();
+        // Fermer toutes les connexions MQTT
+        try {
+            if (controller != null) {
+                controller.shutdown();
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la déconnexion: " + e.getMessage());
         }
     }
 
