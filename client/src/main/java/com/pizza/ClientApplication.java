@@ -26,6 +26,7 @@ public class ClientApplication extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(ClientApplication.class.getResource("welcome-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 500, 500);
         primaryStage.setScene(scene);
+        primaryStage.setTitle("Pizzeria - Accueil");
     }
 
     public static void loadOrderScreen() throws IOException {
@@ -33,6 +34,7 @@ public class ClientApplication extends Application {
         Scene scene = new Scene(fxmlLoader.load(), 500, 500);
         OrderController controller = fxmlLoader.getController();
         primaryStage.setScene(scene);
+        primaryStage.setTitle("Pizzeria - Commander");
     }
 
     public static void loadWaitingScreen(MQTTClient mqttc) throws IOException {
@@ -41,6 +43,7 @@ public class ClientApplication extends Application {
         fxmlLoader.setController(controller);
         Scene scene = new Scene(fxmlLoader.load(), 500, 500);
         primaryStage.setScene(scene);
+        primaryStage.setTitle("Pizzeria - Suivi de commande");
     }
 
     @Override
