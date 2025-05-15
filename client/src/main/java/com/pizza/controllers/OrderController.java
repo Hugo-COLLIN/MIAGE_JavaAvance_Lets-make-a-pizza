@@ -54,6 +54,7 @@ public class OrderController {
     protected void onRequestMenu() {
         statusLabel.setText("Demande du menu en cours...");
         requestMenuButton.setDisable(true);
+        orderButton.setDisable(true);
 
         mqttClient.requestMenu()
                 .thenAccept(this::updateMenuUI)
@@ -92,6 +93,10 @@ public class OrderController {
             }
         }
 
+        // Désactiver le bouton pour éviter les doubles commandes
+        orderButton.setDisable(true);
+        statusLabel.setText("Envoi de votre commande...");
+
         // Envoyer la commande
         mqttClient.sendOrder(order);
     }
@@ -114,7 +119,7 @@ public class OrderController {
         pizzaQuantities.clear();
 
         Label orderLabel = new Label("Sélectionnez vos pizzas:");
-        orderLabel.setStyle("-fx-font-weight: bold;");
+        orderLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
         orderPane.getChildren().add(orderLabel);
 
         // Créer un contrôle pour chaque pizza
@@ -159,6 +164,7 @@ public class OrderController {
         }
         catch(IOException e){
             System.out.print(e.fillInStackTrace());
+            showError("Erreur de navigation", "Impossible de charger l'écran d'attente: " + e.getMessage());
         }
     }
 }
