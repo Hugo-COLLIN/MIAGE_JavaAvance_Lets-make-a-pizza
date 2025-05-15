@@ -190,7 +190,6 @@ public class MQTTServer {
                         pizzasCuites.addAll(pizzaiolo.cuire(pizzasPreparees));
                     }
                     pizzasPretes += quantite;
-                    System.out.println(pizzasPretes);
                 } catch (IllegalArgumentException e) {
                     // Gestion d'ingrédients indisponibles
                     System.out.println("Préparation de la pizza impossible : " + pizzaName);
@@ -203,7 +202,6 @@ public class MQTTServer {
                     System.out.println("Erreur lors de la préparation : " + e.getMessage());
                 }
             }
-            System.out.println(pizzasPretes);
             // Aucune pizza préparée : annulation totale, sinon on envoie quand même les pizzas déjà préparées
             if(pizzasPretes == 0){
                 sendOrderCancelled(orderId);
