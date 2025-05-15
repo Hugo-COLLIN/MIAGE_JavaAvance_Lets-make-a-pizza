@@ -27,6 +27,12 @@ public class WaitingController {
         }
     }
 
+    public void initialize() {
+        // Initialiser le texte de statut
+        if (infoStatus != null) {
+            infoStatus.setText("Validation de votre commande...");
+        }
+    }
 
     public void showNotification(String message) {
         System.out.println("Notification: " + message);
@@ -35,7 +41,25 @@ public class WaitingController {
     }
 
     private void updateStatus(String status) {
-        Platform.runLater(() -> infoStatus.setText("Your order is "+status));
+        Platform.runLater(() -> {
+            // Mettre à jour le texte de statut
+            switch (status) {
+                case "validating":
+                    infoStatus.setText("Validation de votre commande...");
+                    break;
+                case "preparing":
+                    infoStatus.setText("Préparation de vos pizzas...");
+                    break;
+                case "cooking":
+                    infoStatus.setText("Cuisson en cours...");
+                    break;
+                case "delivering":
+                    infoStatus.setText("Livraison en cours...");
+                    break;
+                default:
+                    infoStatus.setText("Statut: " + status);
+            }
+        });
     }
 
     private void updateLivraison() {
@@ -52,7 +76,6 @@ public class WaitingController {
         alert.showAndWait();
     }
 
-    //TODO
     @FXML
     private void onBoutonFinClick(){
         try {
