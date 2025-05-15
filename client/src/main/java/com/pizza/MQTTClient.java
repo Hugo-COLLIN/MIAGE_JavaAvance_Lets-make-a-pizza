@@ -145,7 +145,7 @@ public class MQTTClient {
         System.out.println("Notification de livraison reçue [" + topic + "]");
         fonctionBoutonLivraison.run();
         if (notificationCallback != null) {
-            notificationCallback.accept("command " + id + " is delivered");
+            notificationCallback.accept("La commande " + id + " a été livrée.");
         }
     }
 
