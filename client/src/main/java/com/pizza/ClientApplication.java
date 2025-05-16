@@ -23,30 +23,38 @@ public class ClientApplication extends Application {
     }
 
     public static void loadWelcomeScreen() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(ClientApplication.class.getResource("welcome-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(ClientApplication.class.getResource("views/welcome-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 500, 500);
         primaryStage.setScene(scene);
+        primaryStage.setTitle("Pizzeria - Accueil");
     }
 
     public static void loadOrderScreen() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(ClientApplication.class.getResource("order-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(ClientApplication.class.getResource("views/order-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 500, 500);
         OrderController controller = fxmlLoader.getController();
         primaryStage.setScene(scene);
+        primaryStage.setTitle("Pizzeria - Commander");
     }
 
     public static void loadWaitingScreen(MQTTClient mqttc) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(ClientApplication.class.getResource("waiting-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(ClientApplication.class.getResource("views/waiting-view.fxml"));
         WaitingController controller = new WaitingController(mqttc);
         fxmlLoader.setController(controller);
         Scene scene = new Scene(fxmlLoader.load(), 500, 500);
         primaryStage.setScene(scene);
+        primaryStage.setTitle("Pizzeria - Suivi de commande");
     }
 
     @Override
     public void stop() {
-        if (controller != null) {
-            controller.shutdown();
+        // Fermer toutes les connexions MQTT
+        try {
+            if (controller != null) {
+                controller.shutdown();
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la déconnexion: " + e.getMessage());
         }
     }
 

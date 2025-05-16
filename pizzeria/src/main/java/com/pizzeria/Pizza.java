@@ -75,7 +75,6 @@ public class Pizza {
     }
 
     public Ingredient toIngredient(String s){
-        System.out.println(s);
         switch(s){
             case "sauce tomate" : return Ingredient.SAUCE_TOMATE;
             case "tomates cerise" : return Ingredient.TOMATES_CERISES;
