@@ -1,4 +1,4 @@
-package com.pizzeria;
+package com.pizza.model;
 
 import java.util.HashMap;
 import java.util.Map;
