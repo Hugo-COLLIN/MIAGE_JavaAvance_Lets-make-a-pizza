@@ -1,0 +1,33 @@
+image: maven:3.8-openjdk-21
+
+variables:
+  MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+cache:
+  paths:
+    - .m2/repository/
+
+stages:
+  - build
+  - publish
+
+build:
+  stage: build
+  script:
+    - mkdir -p .m2
+    - cp settings.xml .m2/
+    - mvn $MAVEN_CLI_OPTS clean package
+  artifacts:
+    paths:
+      - client/target/client-*-jar-with-dependencies.jar
+      - pizzeria/target/pizzeria-*-jar-with-dependencies.jar
+
+publish:
+  stage: publish
+  script:
+    - mkdir -p .m2
+    - cp settings.xml .m2/
+    - mvn $MAVEN_CLI_OPTS deploy
+  only:
+    - tags
