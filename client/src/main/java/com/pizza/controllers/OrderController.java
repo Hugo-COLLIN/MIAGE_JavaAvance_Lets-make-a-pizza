@@ -43,6 +43,7 @@ public class OrderController {
             mqttClient.connect();
             mqttClient.setMenuCallback(this::updateMenuUI);
             mqttClient.setChangerVisuel(this::switchScene);
+            mqttClient.setErrorCallback(this::showError);
             this.onRequestMenu();
         } catch (Exception e) {
             showError("Erreur de connexion MQTT", e.getMessage());
@@ -171,5 +172,13 @@ public class OrderController {
             System.out.print(e.fillInStackTrace());
             showError("Erreur de navigation", "Impossible de charger l'écran d'attente: " + e.getMessage());
         }
+    }
+
+    public void showError(String[] error) {
+        Platform.runLater(() -> {
+            this.requestMenuButton.setDisable(false);
+            statusLabel.setText("Erreur lors de la récupération du menu");
+            showError(error[0], error[1]);
+        });
     }
 }

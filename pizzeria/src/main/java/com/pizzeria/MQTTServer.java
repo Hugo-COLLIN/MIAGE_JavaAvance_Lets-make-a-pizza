@@ -13,9 +13,10 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-import lets_make_a_pizza.serveur.Pizzaiolo;
-import com.pizza.model.Pizza;
 import com.pizza.model.Order;
+import com.pizza.model.Pizza;
+
+import lets_make_a_pizza.serveur.Pizzaiolo;
 
 public class MQTTServer {
     private final String broker = "tcp://localhost:1883";
@@ -67,8 +68,15 @@ public class MQTTServer {
 
             System.out.println("Serveur Pizzeria en attente de messages...");
         } catch (MqttException e) {
-            System.err.println("Erreur lors de la connexion au broker MQTT: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Erreur lors de la connexion au broker MQTT");
+            System.err.println("Nouvel essai dans 5 secondes");
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException i) {
+                System.out.println("Erreur : interruption de l'attente");
+            } finally {
+                start();
+            }
         }
     }
 
@@ -97,7 +105,7 @@ public class MQTTServer {
             client.publish("bcast/menu", menuMessage);
             System.out.println("Menu envoyé: " + menuData);
         } catch (MqttException e) {
-            System.err.println("Erreur lors de l'envoi du menu: " + e.getMessage());
+            System.err.println("Erreur lors de l'envoi du menu: envoi MQTT echoué");
         }
     }
 
@@ -112,7 +120,7 @@ public class MQTTServer {
                 System.out.println("Déconnecté du broker MQTT");
             }
         } catch (MqttException e) {
-            System.err.println("Erreur lors de la déconnexion: " + e.getMessage());
+            System.err.println("Erreur lors de la déconnexion");
         }
     }
 
@@ -199,7 +207,7 @@ public class MQTTServer {
                         noticePizza += " pizzas " + pizzaName + "s ,";
                     } else noticePizza += " pizza " + pizzaName + ",";
                 } catch (Exception e) {
-                    System.out.println("Erreur lors de la préparation : " + e.getMessage());
+                    System.out.println("Erreur lors de la préparation");
                 }
             }
             // Aucune pizza préparée : annulation totale, sinon on envoie quand même les pizzas déjà préparées
@@ -230,10 +238,10 @@ public class MQTTServer {
             envoyerNotificationLivraison(orderId, totalPizzas);
 
         } catch (InterruptedException e) {
-            System.out.println("Interruption lors du traitement de la commande: " + e.getMessage());
+            System.out.println("Interruption lors du traitement de la commande");
             Thread.currentThread().interrupt();
         } catch (Exception e) {
-            System.out.println("Erreur lors du traitement de la commande: " + e.getMessage());
+            System.out.println("Erreur lors du traitement de la commande");
         }
     }
 
@@ -250,7 +258,15 @@ public class MQTTServer {
             client.publish("orders/" + orderId + "/status/" + status, statusMessage);
             System.out.println("Statut de la commande " + orderId + " mis à jour: " + status);
         } catch (MqttException e) {
-            System.err.println("Erreur lors de l'envoi du statut: " + e.getMessage());
+            System.err.println("Erreur lors de l'envoi du statut");
+            System.err.println("Nouvel essai dans 5 secondes");
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException i) {
+                System.out.println("Erreur : interruption de l'attente");
+            } finally {
+                sendOrderStatus(orderId, status);
+            }
         }
     }
 
@@ -293,7 +309,15 @@ public class MQTTServer {
             client.publish("orders/" + orderId + "/cancelled", cancelMessage);
             System.out.println("Commande " + orderId + " annulée");
         } catch (MqttException e) {
-            System.err.println("Erreur lors de l'envoi de l'annulation: " + e.getMessage());
+            System.err.println("Erreur lors de l'envoi de l'annulation");
+            System.err.println("Nouvel essai dans 5 secondes");
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException i) {
+                System.out.println("Erreur : interruption de l'attente");
+            } finally {
+                sendOrderCancelled(orderId);
+            }
         }
     }
 
@@ -312,7 +336,15 @@ public class MQTTServer {
             client.publish("orders/" + orderId + "/delivery", deliveryMessage);
             System.out.println("Livraison de la commande " + orderId + " terminée: " + pizzaCount + " pizzas " + notification);
         } catch (MqttException e) {
-            System.err.println("Erreur lors de l'envoi de la notification de livraison: " + e.getMessage());
+            System.err.println("Erreur lors de l'envoi de la notification de livraison");
+            System.err.println("Nouvel essai dans 5 secondes");
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException i) {
+                System.out.println("Erreur : interruption de l'attente");
+            } finally {
+                envoyerNotificationLivraison(orderId, pizzaCount);
+            }
         }
     }
 
