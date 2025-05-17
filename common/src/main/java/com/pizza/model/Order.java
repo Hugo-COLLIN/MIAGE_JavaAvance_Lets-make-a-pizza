@@ -37,20 +37,8 @@ public class Order {
         }
     }
 
-    public void removePizza(String pizzaName) {
-        pizzaQuantities.remove(pizzaName);
-    }
-
     public Map<String, Integer> getPizzaQuantities() {
         return new HashMap<>(pizzaQuantities);
-    }
-
-    public OrderStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(OrderStatus status) {
-        this.status = status;
     }
 
     public String serialize() {

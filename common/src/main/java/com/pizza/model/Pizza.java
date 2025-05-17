@@ -18,10 +18,6 @@ public class Pizza {
         return nom;
     }
 
-    public List<String> getIngredients() {
-        return ingredients;
-    }
-
     public int getPrix() {
         return prix;
     }
