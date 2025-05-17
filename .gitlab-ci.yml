@@ -16,7 +16,6 @@ build:
   stage: build
   script:
     - mkdir -p .m2
-    - cp settings.xml .m2/
     - mvn $MAVEN_CLI_OPTS clean package
   artifacts:
     paths:
