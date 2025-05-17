@@ -18,7 +18,7 @@ public class TimeoutTimer extends Thread {
     public void run() {
         try {
             Thread.sleep(timeout);
-            onTimeout.accept(new String[]{"Timout", message});
+            onTimeout.accept(new String[]{"Temps d'attente dépassé", message});
         } catch (InterruptedException e) {
             // ignored
         }
