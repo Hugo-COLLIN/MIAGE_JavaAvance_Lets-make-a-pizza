@@ -177,6 +177,7 @@ public class OrderController {
     public void showError(String[] error) {
         Platform.runLater(() -> {
             this.requestMenuButton.setDisable(false);
+            statusLabel.setText("Erreur lors de la récupération du menu");
             showError(error[0], error[1]);
         });
     }
