@@ -33,6 +33,7 @@ public class WaitingController {
         try {
             mqttClient.setNotificationCallback(this::showNotification);
             mqttClient.setFonctionBoutonLivraison(this::updateLivraison);
+            mqttClient.setFonctionBoutonCanceled(this::updateCancel);
         } catch (Exception e) {
             showError("Erreur de connexion MQTT", e.getMessage());
         }
@@ -97,6 +98,19 @@ public class WaitingController {
             mainTitle.setText("Commande livrée !!!");
             boutonFin.setVisible(true);
             
+            if (logoFadeTransition != null) {
+                logoFadeTransition.stop();
+                logoImage.setOpacity(1.0);
+            }
+        });
+    }
+
+    private void updateCancel() {
+        Platform.runLater(() -> {
+            infoStatus.setText("Annulation de la commande...");
+            mainTitle.setText("Commande annulée");
+            boutonFin.setVisible(true);
+
             if (logoFadeTransition != null) {
                 logoFadeTransition.stop();
                 logoImage.setOpacity(1.0);

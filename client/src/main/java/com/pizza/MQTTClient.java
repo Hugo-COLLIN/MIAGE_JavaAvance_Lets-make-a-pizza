@@ -23,6 +23,8 @@ public class MQTTClient {
     private Consumer<String> changerVisuel;
     private Runnable fonctionBoutonLivraison;
 
+    private Runnable getFonctionBoutonCanceled;
+
     public void connect() throws MqttException {
         client = new MqttClient(broker, clientId, new MemoryPersistence());
         MqttConnectOptions options = new MqttConnectOptions();
@@ -117,6 +119,7 @@ public class MQTTClient {
                 client.subscribe("orders/" + order.getId() + "/status/" + topic, this::handleNotification);
             }
             client.subscribe("orders/" + order.getId() + "/delivery", this::handleDelivery);
+            client.subscribe("orders/" + order.getId() + "/cancelled", this::handleCanceled);
             // Envoyer la commande sur le bon topic (orders/xxx)
             MqttMessage mqttMessage = new MqttMessage(order.serialize().getBytes());
             mqttMessage.setQos(1);
@@ -157,5 +160,18 @@ public class MQTTClient {
 
     public void setFonctionBoutonLivraison(Runnable runnable){
         fonctionBoutonLivraison = runnable;
+    }
+
+    public void setFonctionBoutonCanceled(Runnable runnable){
+        getFonctionBoutonCanceled = runnable;
+    }
+
+    public void handleCanceled(String topic, MqttMessage message) {
+        String id = topic.split("/")[1];
+        System.out.println("Notification d'annulation reçue [" + topic + "]");
+        getFonctionBoutonCanceled.run();
+        if (notificationCallback != null) {
+            notificationCallback.accept("La commande " + id + " a été annulée.");
+        }
     }
 }
