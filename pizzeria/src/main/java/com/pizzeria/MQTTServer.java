@@ -14,6 +14,8 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import lets_make_a_pizza.serveur.Pizzaiolo;
+import com.pizza.model.Pizza;
+import com.pizza.model.Order;
 
 public class MQTTServer {
     private final String broker = "tcp://localhost:1883";
@@ -21,6 +23,7 @@ public class MQTTServer {
     private MqttClient client;
     private List<Pizza> catalogue;
     private Pizzaiolo pizzaiolo;
+    private PizzaioloIngredientAdapter ingredientAdapter = new PizzaioloIngredientAdapter();
     private ExecutorService executorService;
     private Random random;
 
@@ -35,13 +38,11 @@ public class MQTTServer {
     private void initCatalogue() {
         catalogue = new ArrayList<>();
         for (Pizzaiolo.DetailsPizza detailsPizza : pizzaiolo.getListePizzas()) {
+            List<String> ingredientsStr = ingredientAdapter.ingredientsToString(detailsPizza.ingredients());
             catalogue.add(new Pizza(
-                satanize(detailsPizza.nom()),
-                detailsPizza.ingredients().stream()
-                        .map(Pizzaiolo.Ingredient::toString)
-                        .map(this::satanize)
-                        .toList(),
-                detailsPizza.prix()));
+                    sanitize(detailsPizza.nom()),
+                    ingredientsStr,
+                    detailsPizza.prix()));
         }
     }
 
@@ -333,7 +334,7 @@ public class MQTTServer {
      * Méthode qui permet d'enlever des caractères exotiques dans les pizzas
      * @param str string à nettoyer
      */
-    private String satanize(String str){
+    private String sanitize(String str){
         return str.replace("|", "")
                 .replace(",", "")
                 .replace(";", "")

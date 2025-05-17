@@ -4,11 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>idmc</groupId>
-    <artifactId>lets-make-a-pizza-jfx</artifactId>
-    <name>lets-make-a-pizza-jfx</name>
-    <version>1.0-SNAPSHOT</version>
+    <parent>
+        <groupId>idmc</groupId>
+        <artifactId>pizzjava</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
+    <artifactId>client</artifactId>
+    <name>Pizza Java Client</name>
+    <description>Client JavaFX pour commander des pizzas</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.10.0</junit.version>
@@ -17,6 +21,12 @@
     </properties>
 
     <dependencies>
+        <!-- Dépendance vers le module commun -->
+        <dependency>
+            <groupId>idmc</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+
         <!-- JavaFX dependencies -->
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -77,25 +87,15 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
+            <!-- Plugin JavaFX pour le développement -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
                 <executions>
                     <execution>
-                        <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>idmc.letsmakeapizzajfx/com.pizza.ClientApplication</mainClass>
+                            <mainClass>com.pizza.ClientApplication</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
@@ -106,70 +106,28 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Plugin pour créer un JAR exécutable -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.6.0</version>
                 <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                     <archive>
                         <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>com.pizza.ClientApplication</mainClass>
+                            <mainClass>com.pizza.ClientLauncher</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.4.1</version>
-                <configuration>
-                    <createDependencyReducedPom>false</createDependencyReducedPom>
-                    <filters>
-                        <filter>
-                            <artifact>*:*</artifact>
-                            <excludes>
-                                <exclude>META-INF/*.SF</exclude>
-                                <exclude>META-INF/*.DSA</exclude>
-                                <exclude>META-INF/*.RSA</exclude>
-                            </excludes>
-                        </filter>
-                    </filters>
-                </configuration>
                 <executions>
                     <execution>
+                        <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>single</goal>
                         </goals>
-                        <configuration>
-                            <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.pizza.ClientApplication</mainClass>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.5.0</version>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                            <includeScope>runtime</includeScope>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

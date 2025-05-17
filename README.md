@@ -3,16 +3,17 @@
 
 Systeme distribué permettant de commander des pizzas, les préparer, les cuire, et suivre leur livraison.
 
-## Prérequis
+## Fonctionnalités
+La base actuelle permet à un client d'envoyer des messages à la pizzeria via le clic sur un bouton d'IHM. La pizzeria se contente pour l'instant de les afficher dans le terminal.
+
+## Guide de démarrage
+### Prérequis pour le développement
 - Docker et docker-compose
 - Maven
 - Java 21
 - JavaFX
 
-## Fonctionnalités
-La base actuelle permet à un client d'envoyer des messages à la pizzeria via le clic sur un bouton d'IHM. La pizzeria se contente pour l'instant de les afficher dans le terminal.
-
-## Guide de démarrage
+### Développement
 Effectuer chaque étape dans un terminal différent :
 
 1. Démarrer le broker MQTT
@@ -20,17 +21,24 @@ Effectuer chaque étape dans un terminal différent :
 cd broker && docker-compose up -d && cd ..
 ```
 
-2. Démarrer la pizzeria
+2. Recompiler et démarrer la pizzeria
 ```bash
-cd pizzeria
-mvn clean package && java -jar target/pizza-mqtt-1.0-SNAPSHOT-jar-with-dependencies.jar
+mvn clean compile package -am -pl pizzeria && java -jar pizzeria/target/pizzeria-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
-3. Démarrer le client
+3. Recompiler et démarrer le client
 ```bash
-cd client
-mvn clean javafx:run
+mvn clean compile package -am -pl client && java -jar client/target/client-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
-- Au clic sur le bouton "Afficher le menu" dans l'IHM client, le client envoie une requête à la pizzeria pour afficher le menu. La pizzeria doit répondre avec le menu, qui s'affiche dans l'IHM.
-- Le terminal de la pizzeria doit normalement afficher un message lors du clic sur le bouton dans l'IHM client.
+Lors de la modification du code du client ou de la pizzeria, l'étape correspondante doit être réexécutée.
+
+### Déploiement
+Pour compiler tout le projet, exécuter simplement :
+```sh
+mvn clean package
+```
+
+Les JAR exécutables se trouvent aux emplacements suivants :
+- Pizzeria : `pizzeria/target/pizzeria-1.0-SNAPSHOT-jar-with-dependencies.jar`
+- Client : `client/target/client-1.0-SNAPSHOT-jar-with-dependencies.jar`

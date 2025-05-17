@@ -26,6 +26,23 @@ public class Pizza {
         return prix;
     }
 
+    // Méthode pour sérialiser une pizza
+    public String serialize() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(nom).append("|");
+
+        // Joindre les ingrédients avec des virgules
+        for (int i = 0; i < ingredients.size(); i++) {
+            sb.append(ingredients.get(i));
+            if (i < ingredients.size() - 1) {
+                sb.append(",");
+            }
+        }
+
+        sb.append("|").append(prix);
+        return sb.toString();
+    }
+
     // Méthode pour désérialiser une pizza
     public static Pizza deserialize(String data) {
         String[] parts = data.split("\\|");
