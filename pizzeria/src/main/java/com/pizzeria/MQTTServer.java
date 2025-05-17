@@ -70,12 +70,11 @@ public class MQTTServer {
         } catch (MqttException e) {
             System.err.println("Erreur lors de la connexion au broker MQTT");
             System.err.println("Nouvel essai dans 5 secondes");
-            try{
-            Thread.sleep(5000);
-            }catch(InterruptedException i){
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException i) {
                 System.out.println("Erreur : interruption de l'attente");
-            }
-            finally{
+            } finally {
                 start();
             }
         }
@@ -106,7 +105,7 @@ public class MQTTServer {
             client.publish("bcast/menu", menuMessage);
             System.out.println("Menu envoyé: " + menuData);
         } catch (MqttException e) {
-            System.err.println("Erreur lors de l'envoi du menu: envoie Mqtt echoué");
+            System.err.println("Erreur lors de l'envoi du menu: envoi MQTT echoué");
         }
     }
 
@@ -261,13 +260,13 @@ public class MQTTServer {
         } catch (MqttException e) {
             System.err.println("Erreur lors de l'envoi du statut");
             System.err.println("Nouvel essai dans 5 secondes");
-            try{
-            Thread.sleep(5000);
-            }catch(InterruptedException i){
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException i) {
                 System.out.println("Erreur : interruption de l'attente");
+            } finally {
+                sendOrderStatus(orderId, status);
             }
-            finally{
-                sendOrderStatus(orderId, status);            }
         }
     }
 
@@ -312,12 +311,11 @@ public class MQTTServer {
         } catch (MqttException e) {
             System.err.println("Erreur lors de l'envoi de l'annulation");
             System.err.println("Nouvel essai dans 5 secondes");
-            try{
-            Thread.sleep(5000);
-            }catch(InterruptedException i){
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException i) {
                 System.out.println("Erreur : interruption de l'attente");
-            }
-            finally{
+            } finally {
                 sendOrderCancelled(orderId);
             }
         }
@@ -340,12 +338,11 @@ public class MQTTServer {
         } catch (MqttException e) {
             System.err.println("Erreur lors de l'envoi de la notification de livraison");
             System.err.println("Nouvel essai dans 5 secondes");
-            try{
-            Thread.sleep(5000);
-            }catch(InterruptedException i){
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException i) {
                 System.out.println("Erreur : interruption de l'attente");
-            }
-            finally{
+            } finally {
                 envoyerNotificationLivraison(orderId, pizzaCount);
             }
         }
