@@ -26,7 +26,6 @@ publish:
   stage: publish
   script:
     - mkdir -p .m2
-    - cp settings.xml .m2/
     - mvn $MAVEN_CLI_OPTS deploy
   only:
     - tags
