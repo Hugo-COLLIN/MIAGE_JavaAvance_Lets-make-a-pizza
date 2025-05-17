@@ -34,7 +34,6 @@ public class OrderController {
     private VBox orderPane;
 
     private MQTTClient mqttClient;
-    private List<Pizza> availablePizzas;
     private Map<String, Spinner<Integer>> pizzaQuantities = new HashMap<>();
 
     public void initialize() {
@@ -101,9 +100,8 @@ public class OrderController {
         mqttClient.sendOrder(order);
     }
 
-    private void updateMenuUI(List<Pizza> menu) {
+    private void updateMenuUI(Map<Pizza, String> menu) {
         Platform.runLater(() -> {
-            this.availablePizzas = menu;
             statusLabel.setText("Menu récupéré avec succès - " + menu.size() + " pizzas disponibles");
             requestMenuButton.setDisable(false);
             orderButton.setDisable(false);
@@ -113,7 +111,7 @@ public class OrderController {
         });
     }
 
-    private void updateOrderPane(List<Pizza> pizzas) {
+    private void updateOrderPane(Map<Pizza, String> pizzas) {
         // Nettoyer les anciens éléments
         orderPane.getChildren().clear();
         pizzaQuantities.clear();
@@ -123,24 +121,31 @@ public class OrderController {
         orderPane.getChildren().add(orderLabel);
 
         // Créer un contrôle pour chaque pizza
-        for (Pizza pizza : pizzas) {
+        for (Pizza pizza : pizzas.keySet()) {
+            String pizzaName = pizza.getNom();
+            pizzaName = ("" + pizzaName.charAt(0)).toUpperCase() + pizzaName.substring(1);
+            //System.out.println(pizza.ingredient());
             HBox pizzaBox = new HBox(10);
             pizzaBox.setAlignment(Pos.CENTER_LEFT);
 
-            Label nameLabel = new Label(pizza.getNom());
+            Label nameLabel = new Label(pizzaName);
             nameLabel.setPrefWidth(150);
 
             Label priceLabel = new Label(String.format("%d.00 €", pizza.getPrix()));
             priceLabel.setPrefWidth(80);
 
+            Label ingredientsLabel = new Label("Ingredients : " + pizzas.get(pizza).replaceAll(",", ", "));
+
             Spinner<Integer> quantitySpinner = new Spinner<>(0, 9, 0);
             quantitySpinner.setPrefWidth(70);
             quantitySpinner.setEditable(true);
-
             pizzaQuantities.put(pizza.getNom(), quantitySpinner);
 
+            VBox container = new VBox(0);
             pizzaBox.getChildren().addAll(nameLabel, priceLabel, quantitySpinner);
-            orderPane.getChildren().add(pizzaBox);
+            container.getChildren().add(pizzaBox);
+            container.getChildren().add(ingredientsLabel);
+            orderPane.getChildren().add(container);
         }
     }
 

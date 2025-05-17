@@ -1,6 +1,8 @@
 package com.pizza;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -17,11 +19,13 @@ public class MQTTClient {
     private final String broker = "tcp://localhost:1883";
     private final String clientId = "PizzaClient-" + System.currentTimeMillis();
     private MqttClient client;
-    private CompletableFuture<List<Pizza>> menuFuture;
-    private Consumer<List<Pizza>> menuCallback;
+    private CompletableFuture<Map<Pizza,String>> menuFuture;
+    private Consumer<Map<Pizza,String>> menuCallback;
     private Consumer<String> notificationCallback;
     private Consumer<String> changerVisuel;
     private Runnable fonctionBoutonLivraison;
+
+    private Runnable getFonctionBoutonCanceled;
 
     public void connect() throws MqttException {
         client = new MqttClient(broker, clientId, new MemoryPersistence());
@@ -36,7 +40,7 @@ public class MQTTClient {
         client.subscribe("bcast/menu", this::handleMenuResponse);
     }
 
-    public CompletableFuture<List<Pizza>> requestMenu() {
+    public CompletableFuture<Map<Pizza,String>> requestMenu() {
         try {
             if (client == null || !client.isConnected()) {
                 connect();
@@ -51,7 +55,7 @@ public class MQTTClient {
             return menuFuture;
         } catch (MqttException e) {
             System.err.println("Erreur lors de la demande de menu: " + e.getMessage());
-            CompletableFuture<List<Pizza>> future = new CompletableFuture<>();
+            CompletableFuture<Map<Pizza,String>> future = new CompletableFuture<>();
             future.completeExceptionally(e);
             return future;
         }
@@ -63,14 +67,22 @@ public class MQTTClient {
             System.out.println("Menu reçu: " + payload);
 
             // Désérialiser le menu
-            List<Pizza> menu = new ArrayList<>();
+            /*List<Pizza> menu = new ArrayList<>();
             if (!payload.isEmpty()) {
                 String[] pizzaStrings = payload.split(";");
                 for (String pizzaString : pizzaStrings) {
                     menu.add(Pizza.deserialize(pizzaString));
                 }
+            }*/
+            HashMap<Pizza, String> menu = new HashMap<>();
+            if (!payload.isEmpty()) {
+                String[] pizzaStrings = payload.split(";");
+                for (String pizzaString : pizzaStrings) {
+                    String[] parts = pizzaString.split("\\|");
+                    Pizza pizza = Pizza.deserialize(pizzaString);
+                    menu.put(pizza, parts[1]);
+                }
             }
-
             // Compléter le future avec le menu
             if (menuFuture != null && !menuFuture.isDone()) {
                 menuFuture.complete(menu);
@@ -88,7 +100,7 @@ public class MQTTClient {
         }
     }
 
-    public void setMenuCallback(Consumer<List<Pizza>> callback) {
+    public void setMenuCallback(Consumer<Map<Pizza,String>> callback) {
         this.menuCallback = callback;
     }
 
@@ -117,6 +129,7 @@ public class MQTTClient {
                 client.subscribe("orders/" + order.getId() + "/status/" + topic, this::handleNotification);
             }
             client.subscribe("orders/" + order.getId() + "/delivery", this::handleDelivery);
+            client.subscribe("orders/" + order.getId() + "/cancelled", this::handleCanceled);
             // Envoyer la commande sur le bon topic (orders/xxx)
             MqttMessage mqttMessage = new MqttMessage(order.serialize().getBytes());
             mqttMessage.setQos(1);
@@ -143,9 +156,11 @@ public class MQTTClient {
     public void handleDelivery(String topic, MqttMessage message) {
         String id = topic.split("/")[1];
         System.out.println("Notification de livraison reçue [" + topic + "]");
+        String payload = new String(message.getPayload());
+        System.out.println("Payload de livraison: " + payload);
         fonctionBoutonLivraison.run();
         if (notificationCallback != null) {
-            notificationCallback.accept("La commande " + id + " a été livrée.");
+            notificationCallback.accept(payload);
         }
     }
 
@@ -157,5 +172,18 @@ public class MQTTClient {
 
     public void setFonctionBoutonLivraison(Runnable runnable){
         fonctionBoutonLivraison = runnable;
+    }
+
+    public void setFonctionBoutonCanceled(Runnable runnable){
+        getFonctionBoutonCanceled = runnable;
+    }
+
+    public void handleCanceled(String topic, MqttMessage message) {
+        String id = topic.split("/")[1];
+        System.out.println("Notification d'annulation reçue [" + topic + "]");
+        getFonctionBoutonCanceled.run();
+        if (notificationCallback != null) {
+            notificationCallback.accept("La commande " + id + " a été annulée.");
+        }
     }
 }

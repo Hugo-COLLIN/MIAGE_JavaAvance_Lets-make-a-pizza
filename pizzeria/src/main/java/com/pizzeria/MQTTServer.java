@@ -74,7 +74,8 @@ public class MQTTServer {
 
     /**
      * Méthode pour gérer les demandes de menu
-     * @param topic Le topic de la demande
+     *
+     * @param topic   Le topic de la demande
      * @param message Le message de demande
      */
     private void handleMenuRequest(String topic, MqttMessage message) {
@@ -117,7 +118,8 @@ public class MQTTServer {
 
     /**
      * Méthode pour gérer les commandes reçues
-     * @param topic Le topic de la commande
+     *
+     * @param topic    Le topic de la commande
      * @param commande Le message de commande
      */
     private void handleCommande(String topic, MqttMessage commande) {
@@ -135,6 +137,7 @@ public class MQTTServer {
 
     /**
      * Méthode pour traiter une commande
+     *
      * @param order La commande à traiter
      */
     private void processOrder(Order order) {
@@ -164,9 +167,6 @@ public class MQTTServer {
                 totalPizzas += quantite;
 
                 try {
-                    // Récupérer les détails de la pizza dans le catalogue
-                    Pizza pizzaInfo = trouverDansCatalogue(pizzaName);
-
                     // Créer un objet DetailsPizza pour la préparation
                     Pizzaiolo.DetailsPizza detailsPizza = pizzaiolo.getListePizzas()
                             .stream()
@@ -185,7 +185,7 @@ public class MQTTServer {
                     }
 
                     // Étape 3 : Cuisson
-                    synchronized (this){
+                    synchronized (this) {
                         sendOrderStatus(orderId, "cooking");
                         System.out.println("Cuisson des pizzas : " + pizzaName);
                         pizzasCuites.addAll(pizzaiolo.cuire(pizzasPreparees));
@@ -195,16 +195,15 @@ public class MQTTServer {
                     // Gestion d'ingrédients indisponibles
                     System.out.println("Préparation de la pizza impossible : " + pizzaName);
                     noticePizza += quantite;
-                    if(quantite>1) {
+                    if (quantite > 1) {
                         noticePizza += " pizzas " + pizzaName + "s ,";
                     } else noticePizza += " pizza " + pizzaName + ",";
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     System.out.println("Erreur lors de la préparation : " + e.getMessage());
                 }
             }
             // Aucune pizza préparée : annulation totale, sinon on envoie quand même les pizzas déjà préparées
-            if(pizzasPretes == 0){
+            if (pizzasPretes == 0) {
                 sendOrderCancelled(orderId);
                 return;
             }
@@ -222,8 +221,8 @@ public class MQTTServer {
             for (Pizzaiolo.Pizza p : pizzasCuites) System.out.print(p.nom() + ", ");
 
             // Notification de livraison avec le nombre de pizzas et une notice des pizzas non envoyées
-            if(pizzasPretes != totalPizzas){
-                envoyerNotificationLivraison(orderId, pizzasPretes, "avec des pizzas n'ayant pas pu être délivrées : " + noticePizza.substring(0, noticePizza.length() - 1));
+            if (pizzasPretes != totalPizzas) {
+                envoyerNotificationLivraison(orderId, pizzasPretes, "Pizzas manquante(s) : " + noticePizza.substring(0, noticePizza.length() - 1));
                 return;
             }
 
@@ -240,8 +239,9 @@ public class MQTTServer {
 
     /**
      * Méthode pour envoyer une notification de statut de commande
+     *
      * @param orderId L'ID de la commande
-     * @param status Le statut de la commande
+     * @param status  Le statut de la commande
      */
     private void sendOrderStatus(String orderId, String status) {
         try {
@@ -256,6 +256,7 @@ public class MQTTServer {
 
     /**
      * Méthode pour valider une commande
+     *
      * @param order La commande à valider
      */
     private boolean validateOrder(Order order) {
@@ -282,6 +283,7 @@ public class MQTTServer {
 
     /**
      * Méthode pour envoyer une notification d'annulation de commande
+     *
      * @param orderId L'ID de la commande annulée
      */
     private void sendOrderCancelled(String orderId) {
@@ -298,13 +300,14 @@ public class MQTTServer {
 
     /**
      * Méthode pour envoyer une notification de livraison
-     * @param orderId L'ID de la commande livrée
-     * @param pizzaCount Le nombre de pizzas livrées
+     *
+     * @param orderId      L'ID de la commande livrée
+     * @param pizzaCount   Le nombre de pizzas livrées
      * @param notification en cas d'erreur dans la commande, pour préciser les pizzas non livrées
      */
     private void envoyerNotificationLivraison(String orderId, int pizzaCount, String notification) {
         try {
-            MqttMessage deliveryMessage = new MqttMessage(String.valueOf(pizzaCount).getBytes());
+            MqttMessage deliveryMessage = new MqttMessage((pizzaCount + "/" + notification).getBytes());
             deliveryMessage.setQos(1);
             client.publish("orders/" + orderId + "/delivery", deliveryMessage);
             System.out.println("Livraison de la commande " + orderId + " terminée: " + pizzaCount + " pizzas " + notification);
@@ -320,21 +323,25 @@ public class MQTTServer {
 
     /**
      * Méthode pour trouver une pizza dans le catalogue
+     *
      * @param nom Le nom de la pizza à rechercher
      * @throws Exception si la pizza n'est pas trouvée
      */
     public Pizza trouverDansCatalogue(String nom) throws Exception {
-        for(int i = 0; i < catalogue.size();i++){
-            if(catalogue.get(i).serialize().split("\\|")[0].equals(nom)){return catalogue.get(i);}
+        for (int i = 0; i < catalogue.size(); i++) {
+            if (catalogue.get(i).serialize().split("\\|")[0].equals(nom)) {
+                return catalogue.get(i);
+            }
         }
         throw new Exception("Nom de pizza introuvable dans le catalogue");
     }
 
     /**
      * Méthode qui permet d'enlever des caractères exotiques dans les pizzas
+     *
      * @param str string à nettoyer
      */
-    private String sanitize(String str){
+    private String sanitize(String str) {
         return str.replace("|", "")
                 .replace(",", "")
                 .replace(";", "")
