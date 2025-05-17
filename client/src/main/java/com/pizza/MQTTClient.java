@@ -50,7 +50,6 @@ public class MQTTClient {
             // Envoyer la demande de menu
             MqttMessage mqttMessage = new MqttMessage();
             mqttMessage.setQos(1);
-            client.subscribe("bcast/missing", this::handleMissingPizza);
             client.publish("bcast/i_am_ungry", mqttMessage);
             System.out.println("Demande de menu envoyée");
             return menuFuture;
@@ -149,9 +148,11 @@ public class MQTTClient {
     public void handleDelivery(String topic, MqttMessage message) {
         String id = topic.split("/")[1];
         System.out.println("Notification de livraison reçue [" + topic + "]");
+        String payload = new String(message.getPayload());
+        System.out.println("Payload de livraison: " + payload);
         fonctionBoutonLivraison.run();
         if (notificationCallback != null) {
-            notificationCallback.accept("La commande " + id + " a été livrée.");
+            notificationCallback.accept(payload);
         }
     }
 
@@ -176,15 +177,5 @@ public class MQTTClient {
         if (notificationCallback != null) {
             notificationCallback.accept("La commande " + id + " a été annulée.");
         }
-    }
-
-    public void handleMissingPizza(String topic, MqttMessage message) {
-        String pizzaName = new String(message.getPayload());
-        System.out.println("Notification de pizza manquante reçue [" + pizzaName + "]");
-        missingPizzaCallback.accept(pizzaName);
-    }
-
-    public void setMissingPizzaCallback(Consumer<String> callback) {
-        this.missingPizzaCallback = callback;
     }
 }

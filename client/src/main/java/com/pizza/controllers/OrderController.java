@@ -44,7 +44,6 @@ public class OrderController {
             mqttClient.connect();
             mqttClient.setMenuCallback(this::updateMenuUI);
             mqttClient.setChangerVisuel(this::switchScene);
-            mqttClient.setMissingPizzaCallback(this::hideMissingPizza);
             this.onRequestMenu();
         } catch (Exception e) {
             showError("Erreur de connexion MQTT", e.getMessage());
@@ -157,18 +156,6 @@ public class OrderController {
         if (mqttClient != null) {
             mqttClient.disconnect();
         }
-    }
-
-    private void hideMissingPizza(String pizza){
-        Platform.runLater(() -> {
-            // Vérifier si la pizza est dans la liste
-            if (pizzaQuantities.containsKey(pizza)) {
-                // Récupérer le Spinner correspondant
-                Spinner<Integer> spinner = pizzaQuantities.get(pizza);
-                // Désactiver le Spinner
-                spinner.setDisable(true);
-            }
-        });
     }
 
     public void switchScene(String scene){

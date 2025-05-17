@@ -96,10 +96,6 @@ public class MQTTServer {
       menuMessage.setQos(1);
       client.publish("bcast/menu", menuMessage);
       System.out.println("Menu envoyé: " + menuData);
-      for (Pizza p : getMissingPizzas()){
-        client.publish("bcast/missing", new MqttMessage(p.toString().split(" ")[0].getBytes()));
-        System.out.println("Pizza manquante envoyée: " + p);
-      }
     } catch (MqttException e) {
       System.err.println("Erreur lors de l'envoi du menu: " + e.getMessage());
     }
@@ -226,7 +222,7 @@ public class MQTTServer {
 
       // Notification de livraison avec le nombre de pizzas et une notice des pizzas non envoyées
       if (pizzasPretes != totalPizzas) {
-        envoyerNotificationLivraison(orderId, pizzasPretes, "avec des pizzas n'ayant pas pu être délivrées : " + noticePizza.substring(0, noticePizza.length() - 1));
+        envoyerNotificationLivraison(orderId, pizzasPretes, "Pizzas non livrée(s) : " + noticePizza.substring(0, noticePizza.length() - 1));
         return;
       }
 
@@ -311,7 +307,7 @@ public class MQTTServer {
    */
   private void envoyerNotificationLivraison(String orderId, int pizzaCount, String notification) {
     try {
-      MqttMessage deliveryMessage = new MqttMessage(String.valueOf(pizzaCount).getBytes());
+      MqttMessage deliveryMessage = new MqttMessage((pizzaCount + "/" + notification).getBytes());
       deliveryMessage.setQos(1);
       client.publish("orders/" + orderId + "/delivery", deliveryMessage);
       System.out.println("Livraison de la commande " + orderId + " terminée: " + pizzaCount + " pizzas " + notification);
@@ -351,18 +347,5 @@ public class MQTTServer {
             .replace(";", "")
             .replace("]", "")
             .replace("[", "");
-  }
-
-  private List<Pizza> getMissingPizzas() {
-    List<Pizza> missingPizzas = new ArrayList<>();
-    for ( Pizzaiolo.DetailsPizza detailsPizza : pizzaiolo.getListePizzas()) {
-      if (detailsPizza.ingredients().contains(Pizzaiolo.Ingredient.ANANAS)) {
-        missingPizzas.add(new Pizza(
-                sanitize(detailsPizza.nom()),
-                ingredientAdapter.ingredientsToString(detailsPizza.ingredients()),
-                detailsPizza.prix()));
-      }
-    }
-    return missingPizzas;
   }
 }

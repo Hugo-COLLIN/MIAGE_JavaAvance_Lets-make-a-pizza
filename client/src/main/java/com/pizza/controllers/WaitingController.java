@@ -87,7 +87,7 @@ public class WaitingController {
                     infoStatus.setText("Livraison en cours...");
                     break;
                 default:
-                    infoStatus.setText("Statut: " + status);
+                    infoStatus.setText(status);
             }
         });
     }
