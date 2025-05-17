@@ -1,5 +1,6 @@
-package com.pizza;
+package com.pizza.controllers;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,12 @@ import javafx.scene.control.Spinner;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-public class ClientController {
+import com.pizza.ClientApplication;
+import com.pizza.MQTTClient;
+import com.pizza.model.Order;
+import com.pizza.model.Pizza;
+
+public class OrderController {
     @FXML
     private Label statusLabel;
 
@@ -28,7 +34,6 @@ public class ClientController {
     private VBox orderPane;
 
     private MQTTClient mqttClient;
-    private List<Pizza> availablePizzas;
     private Map<String, Spinner<Integer>> pizzaQuantities = new HashMap<>();
 
     public void initialize() {
@@ -37,8 +42,7 @@ public class ClientController {
         try {
             mqttClient.connect();
             mqttClient.setMenuCallback(this::updateMenuUI);
-            mqttClient.setNotificationCallback(this::showNotification);
-            mqttClient.setErrorCallback(this::showError);
+            mqttClient.setChangerVisuel(this::switchScene);
             this.onRequestMenu();
         } catch (Exception e) {
             showError("Erreur de connexion MQTT", e.getMessage());
@@ -49,6 +53,7 @@ public class ClientController {
     protected void onRequestMenu() {
         statusLabel.setText("Demande du menu en cours...");
         requestMenuButton.setDisable(true);
+        orderButton.setDisable(true);
 
         mqttClient.requestMenu()
                 .thenAccept(this::updateMenuUI)
@@ -60,12 +65,6 @@ public class ClientController {
                     });
                     return null;
                 });
-    }
-
-    @FXML
-    protected void onSendMessageButtonClick() {
-        statusLabel.setText("Message envoyé à la pizzeria!");
-        mqttClient.sendMessage("HelloWorld");
     }
 
     @FXML
@@ -93,13 +92,16 @@ public class ClientController {
             }
         }
 
+        // Désactiver le bouton pour éviter les doubles commandes
+        orderButton.setDisable(true);
+        statusLabel.setText("Envoi de votre commande...");
+
         // Envoyer la commande
         mqttClient.sendOrder(order);
     }
 
-    private void updateMenuUI(List<Pizza> menu) {
+    private void updateMenuUI(Map<Pizza, String> menu) {
         Platform.runLater(() -> {
-            this.availablePizzas = menu;
             statusLabel.setText("Menu récupéré avec succès - " + menu.size() + " pizzas disponibles");
             requestMenuButton.setDisable(false);
             orderButton.setDisable(false);
@@ -109,45 +111,50 @@ public class ClientController {
         });
     }
 
-    private void updateOrderPane(List<Pizza> pizzas) {
+    private void updateOrderPane(Map<Pizza, String> pizzas) {
         // Nettoyer les anciens éléments
         orderPane.getChildren().clear();
         pizzaQuantities.clear();
 
         Label orderLabel = new Label("Sélectionnez vos pizzas:");
-        orderLabel.setStyle("-fx-font-weight: bold;");
+        orderLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
         orderPane.getChildren().add(orderLabel);
 
         // Créer un contrôle pour chaque pizza
-        for (Pizza pizza : pizzas) {
+        for (Pizza pizza : pizzas.keySet()) {
+            String pizzaName = pizza.getNom();
+            pizzaName = ("" + pizzaName.charAt(0)).toUpperCase() + pizzaName.substring(1);
+            //System.out.println(pizza.ingredient());
             HBox pizzaBox = new HBox(10);
             pizzaBox.setAlignment(Pos.CENTER_LEFT);
 
-            Label nameLabel = new Label(pizza.getNom());
+            Label nameLabel = new Label(pizzaName);
             nameLabel.setPrefWidth(150);
 
             Label priceLabel = new Label(String.format("%d.00 €", pizza.getPrix()));
             priceLabel.setPrefWidth(80);
 
+            Label ingredientsLabel = new Label("Ingredients : " + pizzas.get(pizza).replaceAll(",", ", "));
+
             Spinner<Integer> quantitySpinner = new Spinner<>(0, 9, 0);
             quantitySpinner.setPrefWidth(70);
             quantitySpinner.setEditable(true);
-
             pizzaQuantities.put(pizza.getNom(), quantitySpinner);
 
+            VBox container = new VBox(0);
             pizzaBox.getChildren().addAll(nameLabel, priceLabel, quantitySpinner);
-            orderPane.getChildren().add(pizzaBox);
+            container.getChildren().add(pizzaBox);
+            container.getChildren().add(ingredientsLabel);
+            orderPane.getChildren().add(container);
         }
     }
 
     private void showError(String title, String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     public void shutdown() {
@@ -156,16 +163,13 @@ public class ClientController {
         }
     }
 
-    private void updateStatus(String status) {
-        Platform.runLater(() -> statusLabel.setText(status));
-    }
-
-    public void showNotification(String message) {
-        System.out.println("Notification: " + message);
-        updateStatus(message);
-    }
-
-    public void showError(String[] error) {
-        showError(error[0], error[1]);
+    public void switchScene(String scene){
+        try{
+            ClientApplication.loadWaitingScreen(mqttClient);
+        }
+        catch(IOException e){
+            System.out.print(e.fillInStackTrace());
+            showError("Erreur de navigation", "Impossible de charger l'écran d'attente: " + e.getMessage());
+        }
     }
 }
