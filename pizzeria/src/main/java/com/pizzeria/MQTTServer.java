@@ -222,7 +222,7 @@ public class MQTTServer {
 
       // Notification de livraison avec le nombre de pizzas et une notice des pizzas non envoyées
       if (pizzasPretes != totalPizzas) {
-        envoyerNotificationLivraison(orderId, pizzasPretes, "Pizzas non livrée(s) : " + noticePizza.substring(0, noticePizza.length() - 1));
+        envoyerNotificationLivraison(orderId, pizzasPretes, "Pizzas manquante(s) : " + noticePizza.substring(0, noticePizza.length() - 1));
         return;
       }
 
