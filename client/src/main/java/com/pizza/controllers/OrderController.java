@@ -139,7 +139,7 @@ public class OrderController {
             Spinner<Integer> quantitySpinner = new Spinner<>(0, 9, 0);
             quantitySpinner.setPrefWidth(70);
             quantitySpinner.setEditable(true);
-            pizzaQuantities.put(pizzaName, quantitySpinner);
+            pizzaQuantities.put(pizza.getNom(), quantitySpinner);
 
             VBox container = new VBox(0);
             pizzaBox.getChildren().addAll(nameLabel, priceLabel, quantitySpinner);

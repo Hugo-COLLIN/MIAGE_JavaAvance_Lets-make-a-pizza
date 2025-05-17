@@ -97,7 +97,7 @@ public class WaitingController {
             infoStatus.setText("Livraison terminée");
             mainTitle.setText("Commande livrée !!!");
             boutonFin.setVisible(true);
-            
+
             if (logoFadeTransition != null) {
                 logoFadeTransition.stop();
                 logoImage.setOpacity(1.0);
@@ -107,7 +107,7 @@ public class WaitingController {
 
     private void updateCancel() {
         Platform.runLater(() -> {
-            infoStatus.setText("Annulation de la commande...");
+            infoStatus.setText("Vos pizzas ne sont pas disponibles");
             mainTitle.setText("Commande annulée");
             boutonFin.setVisible(true);
 
