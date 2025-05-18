@@ -18,10 +18,6 @@ public class Pizza {
         return nom;
     }
 
-    public List<String> getIngredients() {
-        return ingredients;
-    }
-
     public int getPrix() {
         return prix;
     }
@@ -59,6 +55,6 @@ public class Pizza {
 
     @Override
     public String toString() {
-        return nom + " - " + prix/100.0 + "€";
+        return nom + " - " + prix + "€";
     }
 }

@@ -348,7 +348,11 @@ public class MQTTServer {
         }
     }
 
-    // Méthode de convenance si nous n'avons pas d'erreur dans la commande
+    /**
+     * Méthode pour envoyer une notification de livraison
+     * @param orderId L'ID de la commande livrée
+     * @param pizzaCount Le nombre de pizzas livrées
+     */
     private void envoyerNotificationLivraison(String orderId, int pizzaCount) {
         envoyerNotificationLivraison(orderId, pizzaCount, "");
     }
