@@ -55,6 +55,6 @@ public class Pizza {
 
     @Override
     public String toString() {
-        return nom + " - " + prix/100.0 + "€";
+        return nom + " - " + prix + "€";
     }
 }

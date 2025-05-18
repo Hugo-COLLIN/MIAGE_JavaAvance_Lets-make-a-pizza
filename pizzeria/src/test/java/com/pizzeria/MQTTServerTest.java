@@ -32,6 +32,8 @@ public class MQTTServerTest extends TestCase {
         super.tearDown();
     }
 
+    // je vous laisse faire cette méthode ça semble trop chiant à appeler le pizzaiolo dans les tests
     public void testTrouverDansCatalogue() {
+
     }
 }
