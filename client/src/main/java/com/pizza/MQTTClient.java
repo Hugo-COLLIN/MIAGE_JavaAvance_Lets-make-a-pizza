@@ -67,13 +67,6 @@ public class MQTTClient {
             System.out.println("Menu reçu: " + payload);
 
             // Désérialiser le menu
-            /*List<Pizza> menu = new ArrayList<>();
-            if (!payload.isEmpty()) {
-                String[] pizzaStrings = payload.split(";");
-                for (String pizzaString : pizzaStrings) {
-                    menu.add(Pizza.deserialize(pizzaString));
-                }
-            }*/
             HashMap<Pizza, String> menu = new HashMap<>();
             if (!payload.isEmpty()) {
                 String[] pizzaStrings = payload.split(";");
